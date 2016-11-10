@@ -52,8 +52,12 @@ class Simulator(object):
     self.log('executing', script)
     return self.driver.execute_script("return window.document.getElementsByTagName('embed')[0].{}".format(script))
 
-  def get_property(self, target, property):
-    return self._execute("TGetProperty('/{}', {})".format(target, Property[property]))
+  def get_property(self, target, property, wait=True):
+    while True:
+      value = self._execute("TGetProperty('/{}', {})".format(target, Property[property]))
+      if not wait or value is not None:
+        return value
+      time.sleep(ANIMATION_DELAY)
 
   def set_property(self, target, property, value):
     return self._execute("TSetProperty('/{}', {}, {})".format(target, Property[property], value))
