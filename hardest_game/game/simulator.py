@@ -1,13 +1,22 @@
 from __future__ import print_function, division
-import os, time
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
+from level import Level
 from move import Move
 from property import Property
+from scipy.misc import imread
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from sample import Sample
+from state import State
+from util import static_dir, to_enum
+import time, tempfile
 
-SWFPATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'static', 'swf', 'worlds-hardest-game.swf'))
+SWFPATH = static_dir('swf', 'worlds-hardest-game.swf')
 MOVE_DISTANCE = 5
 ANIMATION_DELAY = 0.1
+BASE_FRAME = 60
+
+class GameError(Exception):
+  pass
 
 class Simulator(object):
   def __init__(self, time_step=0.3, verbose=True, history=None):
@@ -55,6 +64,9 @@ class Simulator(object):
   def __exit__(self, exc_type, exc_value, traceback):
     self.quit()
 
+  def __del__(self):
+    self.quit()
+
   def _execute(self, fn, *args):
     argstr = ['"{}"'.format(arg) for arg in args]
     script = '{fn}({args})'.format(fn=fn, args=', '.join(argstr))
@@ -67,15 +79,48 @@ class Simulator(object):
   def pause(self):
     self._execute('StopPlay')
 
-  def get_property(self, target, property, wait=True):
-    while True:
-      value = self._execute('TGetProperty', '/' + target, Property[property])
-      if not wait or value is not None:
-        return value
-      time.sleep(ANIMATION_DELAY)
+  def get_property(self, target, property, check=True):
+    value = self._execute('TGetProperty', '/' + target, Property[property])
+    if check:
+      assert value is not None
+    return value
 
   def set_property(self, target, property, value):
     return self._execute('TSetProperty', '/' + target, Property[property], value)
+
+  def get_variable(self, name, check=True):
+    value = self._execute('GetVariable', name)
+    if check:
+      assert value is not None
+    return value
+
+  def set_variable(self, name, value):
+    return self._execute('SetVariable', name, value)
+
+  @property
+  def frame(self):
+    return self._execute('TCurrentFrame', '/')
+
+  @frame.setter
+  def frame(self, frame):
+    return self._execute('TGotoFrame', '/', frame)
+
+  @property
+  def level(self):
+    return Level.load_or_gen(self.get_variable('currentLevel'), self)
+
+  @level.setter
+  def level(self, level):
+    self.set_variable('currentLevel', level)
+    self.frame = BASE_FRAME + level
+
+  @property
+  def coins(self):
+    return int(self.get_variable('currentCoins'))
+
+  @property
+  def deaths(self):
+    return int(self.get_variable('deaths'))
 
   @property
   def x(self):
@@ -93,6 +138,10 @@ class Simulator(object):
   def y(self, y):
     return self.set_property('player', 'y', y)
 
+  @property
+  def state(self):
+    return State(self.x, self.y, self.coins, self.deaths, self.history)
+
   def _move_by(self, x, y):
     dx, dy = (x / self.steps), (y / self.steps)
     for _ in range(self.steps):
@@ -101,6 +150,7 @@ class Simulator(object):
       time.sleep(ANIMATION_DELAY)
 
   def make_move(self, move):
+    move = to_enum(move, Move)
     self.history.append(move)
     if move == Move.up:
       self._move_by(0, -MOVE_DISTANCE)
@@ -113,6 +163,18 @@ class Simulator(object):
     else:
       raise ValueError(move)
 
+    if self.deaths > 0:
+      raise GameError('died!')
+
   def make_moves(self, moves):
     for move in moves:
       self.make_move(move)
+
+  def capture(self):
+    with tempfile.NamedTemporaryFile(suffix='.png') as image:
+      self.log('capturing', image.name)
+      self.driver.get_screenshot_as_file(image.name)
+      return imread(image.name)
+
+  def sample(self):
+    return Sample.load_or_gen(self.state.id(), self)

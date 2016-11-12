@@ -1,1 +1,5 @@
+enum34==1.1.6
+numpy==1.11.2
+Pillow==3.4.2
+scipy==0.18.1
 selenium==3.0.1

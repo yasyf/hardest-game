@@ -117,3 +117,5 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+static/data
