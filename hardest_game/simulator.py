@@ -10,10 +10,10 @@ MOVE_DISTANCE = 5
 ANIMATION_DELAY = 0.1
 
 class Simulator(object):
-  def __init__(self, time_step=0.3, verbose=True):
+  def __init__(self, time_step=0.3, verbose=True, history=None):
     self.steps = int(time_step / ANIMATION_DELAY)
     self.verbose = verbose
-    self.history = []
+    self.history = history or []
     self.driver = self.new_driver()
 
   @staticmethod
@@ -41,6 +41,9 @@ class Simulator(object):
 
     self.play()
     time.sleep(4)
+
+    moves, self.history = self.history, []
+    self.make_moves(moves)
 
   def quit(self):
     self.driver.close()
@@ -98,5 +101,18 @@ class Simulator(object):
       time.sleep(ANIMATION_DELAY)
 
   def make_move(self, move):
+    self.history.append(move)
     if move == Move.up:
       self._move_by(0, -MOVE_DISTANCE)
+    elif move == Move.down:
+      self._move_by(0, MOVE_DISTANCE)
+    elif move == Move.left:
+      self._move_by(-MOVE_DISTANCE, 0)
+    elif move == Move.right:
+      self._move_by(MOVE_DISTANCE, 0)
+    else:
+      raise ValueError(move)
+
+  def make_moves(self, moves):
+    for move in moves:
+      self.make_move(move)
