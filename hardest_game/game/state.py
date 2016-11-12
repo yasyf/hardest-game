@@ -1,10 +1,11 @@
 import hashlib
 
 class State(object):
-  def __init__(self, x, y, coins, deaths, history):
+  def __init__(self, x, y, coins, level, deaths, history):
     self.x = x
     self.y = y
     self.coins = coins
+    self.level = level
     self.deaths = deaths
     self.history = history
 

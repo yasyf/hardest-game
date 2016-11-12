@@ -1,9 +1,13 @@
+from move import Move
 from pickleable import Pickleable
-import matplotlib.pyplot as plt
 from scipy.misc import imresize
+import matplotlib.pyplot as plt
 import numpy as np
 
-LARGE_NUMBER = 1000
+ENDGAME_REWARD = 1000
+COIN_REWARD = 50
+MOVEMENT_REWARD = 10
+
 BLACK = 0
 WHITE = 255
 BACKGROUND = [180, 181, 254]
@@ -18,12 +22,18 @@ class Sample(Pickleable):
     self.image = image
 
   def show(self):
-    # plt.imshow(self.image)
-    plt.imshow(self.preprocess(self.image), cmap = plt.get_cmap('gray'))
+    plt.imshow(self.image, cmap=plt.get_cmap('gray'))
     plt.show()
 
   def reward(self):
-    return 0
+    if self.state.deaths > 0:
+      return -ENDGAME_REWARD
+    if self.state.level.coins == self.state.coins and self.state.level.end.contains(self.state):
+      return ENDGAME_REWARD
+
+    difference = (self.state.level.end.x - self.state.x, self.state.level.end.y - self.state.y)
+    did_move = self.state.history[-1] != Move.stay
+    return (COIN_REWARD * self.state.coins) - np.log(np.linalg.norm(difference)) + (MOVEMENT_REWARD * int(did_move))
 
   @staticmethod
   def preprocess(image):

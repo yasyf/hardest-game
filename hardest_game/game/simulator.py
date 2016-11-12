@@ -140,7 +140,7 @@ class Simulator(object):
 
   @property
   def state(self):
-    return State(self.x, self.y, self.coins, self.deaths, self.history)
+    return State(self.x, self.y, self.coins, self.level, self.deaths, self.history)
 
   def _move_by(self, x, y):
     dx, dy = (x / self.steps), (y / self.steps)
@@ -151,7 +151,6 @@ class Simulator(object):
 
   def make_move(self, move):
     move = to_enum(move, Move)
-    self.history.append(move)
     if move == Move.up:
       self._move_by(0, -MOVE_DISTANCE)
     elif move == Move.down:
@@ -160,8 +159,12 @@ class Simulator(object):
       self._move_by(-MOVE_DISTANCE, 0)
     elif move == Move.right:
       self._move_by(MOVE_DISTANCE, 0)
+    elif move == Move.stay:
+      pass
     else:
       raise ValueError(move)
+
+    self.history.append(move)
 
     if self.deaths > 0:
       raise GameError('died!')
