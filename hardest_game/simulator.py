@@ -22,7 +22,7 @@ class Simulator(object):
   @staticmethod
   def new_driver():
     options = Options()
-    options.add_argument('--always-authorize-plugins=true')
+    options.add_argument('--always-authorize-plugins=true --mute-audio=true')
     return webdriver.Chrome(chrome_options=options)
 
   def log(self, *args):
