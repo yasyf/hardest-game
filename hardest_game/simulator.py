@@ -48,6 +48,16 @@ class Simulator(object):
 
     time.sleep(2)
 
+  def quit(self):
+    self.driver.close()
+
+  def __enter__(self):
+    self.start()
+    return self
+
+  def __exit__(self, exc_type, exc_value, traceback):
+    self.quit()
+
   def _execute(self, fn, *args):
     argstr = ['"{}"'.format(arg) for arg in args]
     script = '{fn}({args})'.format(fn=fn, args=', '.join(argstr))
