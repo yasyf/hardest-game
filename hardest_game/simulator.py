@@ -6,9 +6,6 @@ from move import Move
 from property import Property
 
 SWFPATH = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'static', 'swf', 'worlds-hardest-game.swf'))
-START_BUTTON = (615, 320)
-START_GAME_BUTTON = (130, 500)
-BEGIN_BUTTON = (700, 600)
 MOVE_DISTANCE = 5
 ANIMATION_DELAY = 0.1
 
@@ -42,11 +39,8 @@ class Simulator(object):
     self.driver.get(path)
     self.driver.get(path) # yes, we have to load it twice to appease Chrome
 
-    self.click_at(START_BUTTON)
-    self.click_at(START_GAME_BUTTON, after=9)
-    self.click_at(BEGIN_BUTTON)
-
-    time.sleep(2)
+    self.play()
+    time.sleep(4)
 
   def quit(self):
     self.driver.close()
@@ -63,6 +57,12 @@ class Simulator(object):
     script = '{fn}({args})'.format(fn=fn, args=', '.join(argstr))
     self.log('executing', script)
     return self.driver.execute_script("return window.document.getElementsByTagName('embed')[0].{}".format(script))
+
+  def play(self):
+    self._execute('Play')
+
+  def pause(self):
+    self._execute('StopPlay')
 
   def get_property(self, target, property, wait=True):
     while True:
