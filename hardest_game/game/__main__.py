@@ -7,6 +7,8 @@ def run_main():
       simulator.make_move(Move.down)
     for i in range(5):
       simulator.make_move(Move.right)
+    sample = simulator.sample()
+    sample.show()
 
 if __name__ == '__main__':
   run_main()

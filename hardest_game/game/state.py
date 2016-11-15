@@ -1,4 +1,5 @@
 import hashlib
+import numpy as np
 
 class State(object):
   def __init__(self, x, y, coins, level, deaths, history):
@@ -15,3 +16,13 @@ class State(object):
 
   def id(self):
     return self.id_for_history(self.history)
+
+  def is_dead(self):
+    return self.deaths > 0
+
+  def is_win(self):
+    return self.level.coins == self.coins and self.level.end.contains(self)
+
+  def log_distance_to_end(self):
+    difference = (self.level.end.x - self.x, self.level.end.y - self.y)
+    np.log(np.linalg.norm(difference))

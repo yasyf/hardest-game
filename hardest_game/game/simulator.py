@@ -7,7 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from sample import Sample
 from state import State
-from util import static_dir, to_enum
+from util import static_dir, to_enum, waitable
 import time, tempfile
 
 SWFPATH = static_dir('swf', 'worlds-hardest-game.swf')
@@ -65,7 +65,10 @@ class Simulator(object):
     self.quit()
 
   def __del__(self):
-    self.quit()
+    try:
+      self.quit()
+    except:
+      pass
 
   def _execute(self, fn, *args):
     argstr = ['"{}"'.format(arg) for arg in args]
@@ -79,20 +82,16 @@ class Simulator(object):
   def pause(self):
     self._execute('StopPlay')
 
-  def get_property(self, target, property, check=True):
-    value = self._execute('TGetProperty', '/' + target, Property[property])
-    if check:
-      assert value is not None
-    return value
+  @waitable
+  def get_property(self, target, property):
+    return self._execute('TGetProperty', '/' + target, Property[property])
 
   def set_property(self, target, property, value):
     return self._execute('TSetProperty', '/' + target, Property[property], value)
 
-  def get_variable(self, name, check=True):
-    value = self._execute('GetVariable', name)
-    if check:
-      assert value is not None
-    return value
+  @waitable
+  def get_variable(self, name):
+    return self._execute('GetVariable', name)
 
   def set_variable(self, name, value):
     return self._execute('SetVariable', name, value)
