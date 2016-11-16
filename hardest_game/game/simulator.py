@@ -8,9 +8,12 @@ from selenium.webdriver.chrome.options import Options
 from sample import Sample
 from state import State
 from util import static_dir, to_enum, waitable
-import time, tempfile
+import time, tempfile, os
 
+SAUCE_USERNAME = os.getenv('SAUCE_USERNAME')
+SAUCE_KEY = os.getenv('SAUCE_KEY')
 SWFPATH = static_dir('swf', 'worlds-hardest-game.swf')
+SWFURL = 'http://www.worldshardestgame.org/files/worlds-hardest-game.swf'
 MOVE_DISTANCE = 5
 ANIMATION_DELAY = 0.1
 BASE_FRAME = 60
@@ -19,17 +22,32 @@ class GameError(Exception):
   pass
 
 class Simulator(object):
-  def __init__(self, time_step=0.3, verbose=True, moves=None):
+  def __init__(self, time_step=0.3, verbose=True, moves=None, use_remote=False):
     self.steps = int(time_step / ANIMATION_DELAY)
     self.verbose = verbose
     self.moves = moves or []
+    if use_remote is None:
+      self.use_remote = SAUCE_USERNAME and SAUCE_KEY
+    else:
+      self.use_remote = use_remote
     self.driver = self.new_driver()
 
-  @staticmethod
-  def new_driver():
-    options = Options()
-    options.add_argument('--always-authorize-plugins=true --mute-audio=true')
-    return webdriver.Chrome(chrome_options=options)
+  def new_driver(self):
+    if self.use_remote:
+      self.log('using remote driver')
+      capabilities = {
+        'browserName': 'MicrosoftEdge',
+        'platform': 'Windows 10',
+        'version': '14',
+        'screenResolution': '1024x768',
+      }
+      url = 'http://{}:{}@ondemand.saucelabs.com:80/wd/hub'.format(SAUCE_USERNAME, SAUCE_KEY)
+      return webdriver.Remote(desired_capabilities=capabilities, command_executor=url)
+    else:
+      self.log('using local driver')
+      options = Options()
+      options.add_argument('--always-authorize-plugins=true --mute-audio=true')
+      return webdriver.Chrome(chrome_options=options)
 
   def log(self, *args):
     if self.verbose:
@@ -44,7 +62,10 @@ class Simulator(object):
     chain.perform()
 
   def start(self):
-    path = 'file://{}'.format(SWFPATH)
+    if self.use_remote:
+      path = SWFURL
+    else:
+      path = 'file://{}'.format(SWFPATH)
     self.driver.get(path)
     self.driver.get(path) # yes, we have to load it twice to appease Chrome
 
@@ -176,7 +197,7 @@ class Simulator(object):
     with tempfile.NamedTemporaryFile(suffix='.png') as image:
       self.log('capturing', image.name)
       self.driver.get_screenshot_as_file(image.name)
-      return imread(image.name)
+      return imread(image.name, mode='RGB')
 
   def sample(self):
     return Sample.load_or_gen(self.state.id(), self)
