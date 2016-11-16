@@ -4,6 +4,7 @@ from scipy.misc import imresize
 import matplotlib.pyplot as plt
 import numpy as np
 
+IMSCALE = 1/2
 BLACK = 0
 WHITE = 255
 BACKGROUND = [180, 181, 254]
@@ -29,7 +30,7 @@ class Sample(Pickleable):
     image[image == BLUE_TILE] = WHITE
     image[image == WHITE_TILE] = WHITE
     image = np.dot(image, GREYSCALE)
-    image = imresize(image, 1/2)
+    image = imresize(image, IMSCALE, interp='bilinear')
     return image
 
   @classmethod
