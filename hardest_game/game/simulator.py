@@ -14,15 +14,15 @@ SAUCE_USERNAME = os.getenv('SAUCE_USERNAME')
 SAUCE_KEY = os.getenv('SAUCE_KEY')
 SWFPATH = static_dir('swf', 'worlds-hardest-game.swf')
 SWFURL = 'http://www.worldshardestgame.org/files/worlds-hardest-game.swf'
-MOVE_DISTANCE = 5
-ANIMATION_DELAY = 0.1
+MOVE_DISTANCE = 4
+ANIMATION_DELAY = 0.05
 BASE_FRAME = 60
 
 class GameError(Exception):
   pass
 
 class Simulator(object):
-  def __init__(self, time_step=0.3, verbose=True, moves=None, use_remote=False):
+  def __init__(self, time_step=0.1, verbose=True, moves=None, use_remote=False):
     self.steps = int(time_step / ANIMATION_DELAY)
     self.verbose = verbose
     self.moves = moves or []
