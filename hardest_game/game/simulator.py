@@ -19,10 +19,10 @@ class GameError(Exception):
   pass
 
 class Simulator(object):
-  def __init__(self, time_step=0.3, verbose=True, history=None):
+  def __init__(self, time_step=0.3, verbose=True, moves=None):
     self.steps = int(time_step / ANIMATION_DELAY)
     self.verbose = verbose
-    self.history = history or []
+    self.moves = moves or []
     self.driver = self.new_driver()
 
   @staticmethod
@@ -51,7 +51,7 @@ class Simulator(object):
     self.play()
     time.sleep(4)
 
-    moves, self.history = self.history, []
+    moves, self.moves = self.moves, []
     self.make_moves(moves)
 
   def quit(self):
@@ -139,7 +139,7 @@ class Simulator(object):
 
   @property
   def state(self):
-    return State(self.x, self.y, self.coins, self.level, self.deaths, self.history)
+    return State(self.x, self.y, self.coins, self.level, self.deaths, self.moves)
 
   def _move_by(self, x, y):
     dx, dy = (x / self.steps), (y / self.steps)
@@ -163,7 +163,7 @@ class Simulator(object):
     else:
       raise ValueError(move)
 
-    self.history.append(move)
+    self.moves.append(move)
 
     if self.deaths > 0:
       raise GameError('died!')

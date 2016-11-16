@@ -5,13 +5,15 @@ COIN_REWARD = 50
 MOVEMENT_REWARD = 10
 
 class ReplayMemory(object):
-  def __init__(self, state, next_state):
-    self.state = state
-    self.next_state = next_state
+  def __init__(self, history):
+    self.history = history
+
+    self.state = history.get(2)
+    self.next_state = history.get()
 
   @property
   def action(self):
-    return self.next_state.history[-1]
+    return self.next_state.moves[-1]
 
   @property
   def reward(self):

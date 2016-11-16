@@ -2,20 +2,20 @@ import hashlib
 import numpy as np
 
 class State(object):
-  def __init__(self, x, y, coins, level, deaths, history):
+  def __init__(self, x, y, coins, level, deaths, moves):
     self.x = x
     self.y = y
     self.coins = coins
     self.level = level
     self.deaths = deaths
-    self.history = history
+    self.moves = moves
 
   @staticmethod
-  def id_for_history(history):
-    return hashlib.md5(''.join(map(lambda x: str(x.value), history))).hexdigest()
+  def id_for_moves(moves):
+    return hashlib.md5(''.join(map(lambda x: str(x.value), moves))).hexdigest()
 
   def id(self):
-    return self.id_for_history(self.history)
+    return self.id_for_moves(self.moves)
 
   def is_dead(self):
     return self.deaths > 0
