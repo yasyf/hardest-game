@@ -22,7 +22,8 @@ class GameError(Exception):
   pass
 
 class Simulator(object):
-  def __init__(self, time_step=0.1, verbose=True, moves=None, use_remote=False):
+  def __init__(self, name='Simulator', time_step=0.1, verbose=True, moves=None, use_remote=False):
+    self.name = name
     self.steps = int(time_step / ANIMATION_DELAY)
     self.verbose = verbose
     self.moves = moves or []
@@ -51,7 +52,7 @@ class Simulator(object):
 
   def log(self, *args):
     if self.verbose:
-      print('[Simulator]: {}'.format(' '.join(map(str, args))))
+      print('[{}]: {}'.format(self.name, ' '.join(map(str, args))))
 
   def click_at(self, pos, after=1):
     self.log('sleeping', after)
@@ -76,7 +77,10 @@ class Simulator(object):
     self.make_moves(moves)
 
   def quit(self):
-    self.driver.close()
+    try:
+      self.driver.close()
+    except:
+      pass
 
   def __enter__(self):
     self.start()
@@ -86,10 +90,7 @@ class Simulator(object):
     self.quit()
 
   def __del__(self):
-    try:
-      self.quit()
-    except:
-      pass
+    self.quit()
 
   def _execute(self, fn, *args):
     argstr = ['"{}"'.format(arg) for arg in args]
