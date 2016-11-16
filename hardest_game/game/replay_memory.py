@@ -6,8 +6,6 @@ MOVEMENT_REWARD = 10
 
 class ReplayMemory(object):
   def __init__(self, history):
-    self.history = history
-
     self.state = history.get(2)
     self.next_state = history.get()
 

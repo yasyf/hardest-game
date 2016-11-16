@@ -1,10 +1,14 @@
 from __future__ import division
 from collections import deque
+import numpy as np
 
-class History():
+class History(object):
   HISTORY_SIZE = 4
 
   def __init__(self):
+    self.reset()
+
+  def reset(self):
     self.samples = deque()
 
   def add(self, sample):
@@ -16,3 +20,6 @@ class History():
 
   def get(self, i=1):
     return self.samples[-i]
+
+  def stacked_images(self):
+    return np.stack([sample.image for sample in self.samples], axis=-1)

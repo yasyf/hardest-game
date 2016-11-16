@@ -2,6 +2,7 @@ from .base import Base
 from .conv2d import Conv2D
 from .fc import FC
 import tensorflow as tf
+import numpy as np
 
 class DeepQ(Base):
   def __init__(self, input_dims, conv_templates, fc_templates, nactions):
@@ -32,6 +33,9 @@ class DeepQ(Base):
       out = FC(name, input_, n).to_tf()
       self.fc_layers.append(out)
       input_ = out
+
+  def best_action(self, phi):
+    return np.argmax(self.evaluate(phi))
 
   def to_tf(self):
     return self.out

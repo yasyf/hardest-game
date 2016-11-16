@@ -199,5 +199,8 @@ class Simulator(object):
       self.driver.get_screenshot_as_file(image.name)
       return imread(image.name, mode='RGB')
 
-  def sample(self):
-    return Sample.load_or_gen(self.state.id(), self)
+  def sample(self, use_cached=True):
+    if use_cached:
+      return Sample.load_or_gen(self.state.id(), self)
+    else:
+      return Sample.gen(self.state.id(), self)

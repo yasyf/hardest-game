@@ -14,6 +14,8 @@ WHITE_TILE = [247, 247, 255]
 GREYSCALE = [0.299, 0.587, 0.114]
 
 class Sample(Pickleable):
+  IMAGE_DIMS = (250, 475)
+
   def __init__(self, state, image):
     self.state = state
     self.image = image
