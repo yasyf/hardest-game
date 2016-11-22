@@ -16,6 +16,7 @@ class ReplayMemoryLog(object):
     if len(self.memories) >= REPLAY_MEMORY_SIZE:
       self.memories.popleft()
     self.memories.append(memory)
+    return memory
 
   def sample_minibatch(self):
     return random.sample(self.memories, MINIBATCH_SIZE)

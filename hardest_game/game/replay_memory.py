@@ -9,6 +9,13 @@ class ReplayMemory(object):
     self.state = history.get(2)
     self.next_state = history.get()
 
+    self.data = history.last_data
+    self.next_data = history.data
+
+  @property
+  def is_terminal(self):
+    return self.next_state.is_death() or self.next_state.is_win()
+
   @property
   def action(self):
     return self.next_state.moves[-1]
