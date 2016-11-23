@@ -11,6 +11,7 @@ LEARNING_RATE_DECAY = 0.96
 LEARNING_RATE_STEP = 5 * 1e3
 MOMENTUM = 0.95
 MODEL_DIR = static_dir('tf', 'models')
+LOG_DIR = static_dir('tf', 'logs')
 
 class DeepQ(Base):
   def __init__(self, input_dims, conv_templates, fc_templates, nactions, session, restore=False):
@@ -19,7 +20,6 @@ class DeepQ(Base):
     self.fc_templates = fc_templates
     self.nactions = nactions
     self.session = session
-    self.saver = tf.train.Saver()
 
     (height, width, ninput) = input_dims
     with tf.variable_scope('deepq'):
@@ -28,7 +28,7 @@ class DeepQ(Base):
       self.labels = tf.placeholder(tf.float32, [None], 'labels')
       self._create_conv_layers()
       self._create_fc_layers()
-      self.out = FC('output', self.fc_layers[-1], nactions, activation_fn=None).to_tf()
+      self._add_out()
       self._add_loss()
       self._add_optimizer()
       self._add_summaries()
@@ -38,6 +38,9 @@ class DeepQ(Base):
     else:
       init = tf.initialize_all_variables()
       self.session.run(init)
+
+    self.saver = tf.train.Saver()
+    self.writer = tf.train.SummaryWriter(LOG_DIR, self.session.graph)
 
   def _create_conv_layers(self):
     self.conv_layers = []
@@ -54,6 +57,11 @@ class DeepQ(Base):
       out = FC(name, input_, n).to_tf()
       self.fc_layers.append(out)
       input_ = out
+
+  def _add_out(self):
+    self.out = FC('output', self.fc_layers[-1], self.nactions, activation_fn=None).to_tf()
+    self.best_action = tf.argmax(self.out, dimension=1)
+    self.best_reward = tf.max(self.out, dimension=1)
 
   def _add_loss(self):
     actions_one_hot = tf.one_hot(self.actions, self.nactions, name='actions_one_hot')
@@ -80,24 +88,23 @@ class DeepQ(Base):
     out_summaries = [tf.histogram_summary('q[{}]'.format(i), averaged_out[i]) for i in range(self.nactions)]
     self.out_summary = tf.merge_summary(out_summaries, 'out_summaries')
 
-  def evaluate(self, data, actions):
-    raise NotImplementedError
-
   def save(self):
     self.saver.save(self.session, MODEL_DIR, global_step=self.global_step)
 
   def train(self, data, actions, labels):
-    self.session.run([self.optimizer, self.out, self.loss, self.out_summary], {
+    _, q_estimate, loss, summary = self.session.run([self.optimizer, self.out, self.loss, self.out_summary], {
       self.data: data,
       self.actions: actions,
       self.labels: labels,
     })
+    self.writer.add_summary(summary, global_step=self.global_step)
+    return q_estimate, loss
 
-  def best_action(self, phi):
-    return np.argmax(self.evaluate(phi))
+  def best_action(self, data):
+    return self.best_action.eval({self.data: data}, session=self.session)
 
-  def best_reward(self, phi):
-    return np.max(self.evaluate(phi))
+  def best_reward(self, data):
+    return self.best_reward.eval({self.data: data}, session=self.session)
 
   def to_tf(self):
     return self.out

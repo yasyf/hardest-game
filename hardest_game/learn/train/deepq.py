@@ -20,7 +20,6 @@ GAMMA = 0.99
 class DeepQTrainer(object):
   def __init__(self):
     self.net = DeepQ(INPUT_DIMS, CONV_TEMPLATES, FC_TEMPLATES, len(Move))
-    self.saver = tf.train.Saver()
     self.frameno = 0
     self.simulator = Simulator()
     self.history = History()
