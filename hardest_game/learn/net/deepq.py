@@ -91,13 +91,13 @@ class DeepQ(Base):
     self.saver.save(self.session, MODEL_DIR, global_step=self.global_step)
 
   def train(self, data, actions, labels):
-    _, q_estimate, loss, summary = self.session.run([self.optimizer, self.out, self.loss, self.out_summary], {
+    _, _, loss, summary = self.session.run([self.optimizer, self.out, self.loss, self.out_summary], {
       self.data: data,
       self.actions: actions,
       self.labels: labels,
     })
     self.writer.add_summary(summary, global_step=tf.train.global_step(self.session, self.global_step))
-    return q_estimate, loss
+    return loss
 
   def eval_best_action(self, data):
     return self.best_action.eval({self.data: [data]}, session=self.session)[0]

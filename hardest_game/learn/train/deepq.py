@@ -76,7 +76,8 @@ class DeepQTrainer(object):
       data = np.array(map(operator.attrgetter('data'), minibatch))
       actions = np.array(map(operator.attrgetter('action'), minibatch))
       labels = np.array(map(self._label_for_memory, minibatch))
-      self.net.train(data, actions, labels)
+      loss = self.net.train(data, actions, labels)
+      print('Loss: {}'.format(loss))
 
     if memory.is_terminal:
       raise StopIteration
