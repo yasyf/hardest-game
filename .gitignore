@@ -119,6 +119,7 @@ ENV/
 .ropeproject
 
 static/data
+static/tf
 
 
 # Created by https://www.gitignore.io/api/latex

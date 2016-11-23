@@ -2,7 +2,6 @@ from .base import Base
 from .conv2d import Conv2D
 from .fc import FC
 import tensorflow as tf
-import numpy as np
 from ...game.util import static_dir
 
 LEARNING_RATE_MIN = 0.00025
@@ -52,7 +51,7 @@ class DeepQ(Base):
 
   def _create_fc_layers(self):
     self.fc_layers = []
-    input_ = self.conv_layers[-1]
+    input_ = tf.contrib.layers.flatten(self.conv_layers[-1])
     for (name, n) in self.fc_templates:
       out = FC(name, input_, n).to_tf()
       self.fc_layers.append(out)
@@ -61,7 +60,7 @@ class DeepQ(Base):
   def _add_out(self):
     self.out = FC('output', self.fc_layers[-1], self.nactions, activation_fn=None).to_tf()
     self.best_action = tf.argmax(self.out, dimension=1)
-    self.best_reward = tf.max(self.out, dimension=1)
+    self.best_reward = tf.reduce_max(self.out, reduction_indices=1)
 
   def _add_loss(self):
     actions_one_hot = tf.one_hot(self.actions, self.nactions, name='actions_one_hot')
@@ -97,14 +96,14 @@ class DeepQ(Base):
       self.actions: actions,
       self.labels: labels,
     })
-    self.writer.add_summary(summary, global_step=self.global_step)
+    self.writer.add_summary(summary, global_step=tf.train.global_step(self.session, self.global_step))
     return q_estimate, loss
 
-  def best_action(self, data):
-    return self.best_action.eval({self.data: data}, session=self.session)
+  def eval_best_action(self, data):
+    return self.best_action.eval({self.data: [data]}, session=self.session)[0]
 
-  def best_reward(self, data):
-    return self.best_reward.eval({self.data: data}, session=self.session)
+  def eval_best_reward(self, data):
+    return self.best_reward.eval({self.data: [data]}, session=self.session)[0]
 
   def to_tf(self):
     return self.out

@@ -4,9 +4,10 @@ from collections import deque
 import random
 
 REPLAY_MEMORY_SIZE = 1e3
-MINIBATCH_SIZE = 32
 
 class ReplayMemoryLog(object):
+  MINIBATCH_SIZE = 32
+
   def __init__(self, history):
     self.memories = deque()
     self.history = history
@@ -19,4 +20,4 @@ class ReplayMemoryLog(object):
     return memory
 
   def sample_minibatch(self):
-    return random.sample(self.memories, MINIBATCH_SIZE)
+    return random.sample(self.memories, self.MINIBATCH_SIZE)

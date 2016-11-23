@@ -22,13 +22,13 @@ class Conv2D(Base):
 
     with tf.variable_scope('conv2d'):
       self.out = tf.contrib.layers.convolution2d(
-        input_tensor,
-        noutput,
-        filter_dims,
-        activation_fn,
-        [stride, stride],
+        inputs=input_tensor,
+        num_outputs=noutput,
+        kernel_size=filter_dims,
+        activation_fn=activation_fn,
+        stride=[stride, stride],
         padding=padding,
-        name=name
+        scope=name,
       )
 
   def to_tf(self):

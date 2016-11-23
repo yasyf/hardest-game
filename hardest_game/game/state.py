@@ -17,7 +17,7 @@ class State(object):
   def id(self):
     return self.id_for_moves(self.moves)
 
-  def is_dead(self):
+  def is_death(self):
     return self.deaths > 0
 
   def is_win(self):
@@ -25,4 +25,4 @@ class State(object):
 
   def log_distance_to_end(self):
     difference = (self.level.end.x - self.x, self.level.end.y - self.y)
-    np.log(np.linalg.norm(difference))
+    return np.log(np.linalg.norm(difference))

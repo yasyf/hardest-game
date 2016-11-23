@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-class NetBase(object):
+class Base(object):
   @abstractmethod
   def to_tf(self):
     raise NotImplementedError

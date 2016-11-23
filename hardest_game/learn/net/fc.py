@@ -16,10 +16,10 @@ class FC(Base):
 
     with tf.variable_scope('fc'):
       self.out = tf.contrib.layers.fully_connected(
-        input_tensor,
-        noutput,
-        activation_fn,
-        name=name
+        inputs=input_tensor,
+        num_outputs=noutput,
+        activation_fn=activation_fn,
+        scope=name
       )
 
   def to_tf(self):

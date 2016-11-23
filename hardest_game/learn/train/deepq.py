@@ -7,20 +7,23 @@ from ...game.sample import Sample
 from ..net.deepq import DeepQ
 import operator
 import numpy as np
+import tensorflow as tf
 import random
 
 CONV_TEMPLATES = [('c1', 16, 8, 4), ('c2', 32, 4, 2)] # [(name, nout, size, stride)]
 FC_TEMPLATES = [('f1', 256)] # [(name, nout)]
 EPSILON_LIFE = 1e2
 INPUT_DIMS = Sample.IMAGE_DIMS + (History.HISTORY_SIZE,)
-NUM_EPISODES = 1e3
-NUM_STEPS = 1e3
+NUM_EPISODES = int(1e3)
+NUM_STEPS = int(1e3)
 GAMMA = 0.99
 
 class DeepQTrainer(object):
   def __init__(self):
-    self.net = DeepQ(INPUT_DIMS, CONV_TEMPLATES, FC_TEMPLATES, len(Move))
+    self.session = tf.Session()
+    self.net = DeepQ(INPUT_DIMS, CONV_TEMPLATES, FC_TEMPLATES, len(Move), self.session)
     self.frameno = 0
+    self.step = 0
     self.simulator = Simulator()
     self.history = History()
     self.replay_memories = ReplayMemoryLog(self.history)
@@ -38,15 +41,17 @@ class DeepQTrainer(object):
     if np.random.random() < self.epsilon:
       return random.choice(list(Move))
     else:
-      return self.net.best_action(self.history.data)
+      return self.net.eval_best_action(self.history.data)
 
   def _label_for_memory(self, memory):
     if memory.is_terminal:
       return memory.reward
     else:
-      return memory.reward + (GAMMA * self.net.best_reward(memory.next_data))
+      return memory.reward + (GAMMA * self.net.eval_best_reward(memory.next_data))
 
   def _train_episode(self):
+    self.step = 0
+
     self.history.reset()
     for _ in range(History.HISTORY_SIZE):
       self.history.add(self.simulator.sample(use_cached=False))
@@ -58,15 +63,20 @@ class DeepQTrainer(object):
         break
 
   def _step(self):
+    self.step += 1
+    self.frameno += 1
+
     action = self.next_action()
     self.simulator.make_move(action)
     self.history.add(self.simulator.sample())
     memory = self.replay_memories.snapshot()
 
-    minibatch = self.replay_memories.sample_minibatch()
-    data = np.array(map(operator.attrgetter('data'), minibatch))
-    labels = np.array(map(self._label_for_memory, minibatch))
-    self.net.train(data, labels)
+    if self.step >= ReplayMemoryLog.MINIBATCH_SIZE:
+      minibatch = self.replay_memories.sample_minibatch()
+      data = np.array(map(operator.attrgetter('data'), minibatch))
+      actions = np.array(map(operator.attrgetter('action'), minibatch))
+      labels = np.array(map(self._label_for_memory, minibatch))
+      self.net.train(data, actions, labels)
 
     if memory.is_terminal:
       raise StopIteration
