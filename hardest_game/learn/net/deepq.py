@@ -4,18 +4,21 @@ from .conv2d import Conv2D
 from .fc import FC
 import tensorflow as tf
 from ...shared.util import static_dir, ensure_exists
+import os
 
 DELTA_MIN = -10
 DELTA_MAX = 10
 
 class DeepQ(Base):
   def __init__(self, name, input_dims, conv_templates, fc_templates, nactions, session, restore=False):
+    model_dir = static_dir('tf', 'models', name)
+
     self.input_dims = input_dims
     self.conv_templates = conv_templates
     self.fc_templates = fc_templates
     self.nactions = nactions
     self.session = session
-    self.model_file = ensure_exists(static_dir('tf', 'models', name, 'deepq'))
+    self.model_file = ensure_exists(os.path.join(model_dir, 'deepq'))
 
     self._create_graph(input_dims)
 
@@ -23,8 +26,8 @@ class DeepQ(Base):
     log_dir = static_dir('tf', 'logs', str(int(time.time())))
     self.writer = tf.train.SummaryWriter(log_dir, self.session.graph)
 
-    if restore:
-      self.saver.restore(self.session, tf.train.latest_checkpoint(static_dir('tf', 'models', name)))
+    if restore and os.path.exists(model_dir):
+      self.saver.restore(self.session, tf.train.latest_checkpoint(model_dir))
     else:
       init = tf.initialize_all_variables()
       self.session.run(init)
