@@ -43,6 +43,7 @@ class DeepQ(Base):
       self.data = tf.placeholder(tf.float32, [None, height, width, ninput], 'data')
       self.actions = tf.placeholder(tf.int32, [None], 'actions')
       self.labels = tf.placeholder(tf.float32, [None], 'labels')
+      self.epsilon = tf.placeholder(tf.float32, [None], 'epsilon')
       self._create_conv_layers()
       self._create_fc_layers()
       self._add_out()
@@ -89,6 +90,7 @@ class DeepQ(Base):
 
   def _add_summaries(self):
     tf.scalar_summary('loss', self.loss)
+    tf.scalar_summary('epsilon', self.epsilon)
 
     averaged_out = tf.reduce_mean(self.out, reduction_indices=0)
     for i in range(self.nactions):
@@ -102,20 +104,27 @@ class DeepQ(Base):
   def save(self):
     self.saver.save(self.session, self.model_file, global_step=self.global_step)
 
-  def train(self, data, actions, labels):
-    _, summary = self.session.run([self.optimize, self.summaries], {
+  def feed_dict(self, data, actions, labels, extra_feed_dict=None):
+    feed_dict = {
       self.data: data,
       self.actions: actions,
       self.labels: labels,
-    })
+    }
+    feed_dict.update(extra_feed_dict or {})
+    return feed_dict
+
+  def train(self, data, actions, labels, extra_feed_dict=None):
+    _, summary = self.session.run(
+      [self.optimize, self.summaries],
+      self.feed_dict(data, actions, labels, extra_feed_dict)
+    )
     self.writer.add_summary(summary, global_step=tf.train.global_step(self.session, self.global_step))
 
-  def train_loss(self, data, actions, labels):
-    _, loss, summary = self.session.run([self.optimize, self.loss, self.summaries], {
-      self.data: data,
-      self.actions: actions,
-      self.labels: labels,
-    })
+  def train_loss(self, data, actions, labels, extra_feed_dict=None):
+    _, loss, summary = self.session.run(
+      [self.optimize, self.loss, self.summaries],
+      self.feed_dict(data, actions, labels, extra_feed_dict)
+    )
     self.writer.add_summary(summary, global_step=tf.train.global_step(self.session, self.global_step))
     return loss
 

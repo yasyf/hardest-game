@@ -55,11 +55,13 @@ class DeepQTrainer(DeepQAgent):
     actions = np.array(map(operator.attrgetter('action'), minibatch))
     labels = np.array(map(self._label_for_memory, minibatch))
 
+    feed_dict = {self.net.epsilon: self.epsilon}
+
     if self.verbose:
-      loss = self.net.train_loss(data, actions, labels)
+      loss = self.net.train_loss(data, actions, labels, feed_dict)
       print('Loss: {}'.format(loss))
     else:
-      self.net.train(data, actions, labels)
+      self.net.train(data, actions, labels, feed_dict)
 
     if memory.is_terminal:
       print('Final Reward: {}'.format(memory.reward))
