@@ -15,7 +15,7 @@ FC_TEMPLATES = [('f1', 256)] # [(name, nout)]
 EPSILON_LIFE = 1e2
 INPUT_DIMS = Sample.IMAGE_DIMS + (History.HISTORY_SIZE,)
 NUM_EPISODES = int(1e3)
-NUM_STEPS = int(1e3)
+NUM_STEPS = int(1e5)
 GAMMA = 0.90
 
 class DeepQTrainer(object):
