@@ -25,7 +25,7 @@ class ReplayMemory(object):
     if self.next_state.is_win():
       return ENDGAME_REWARD
 
-    if self.state.level.start.contains(self):
+    if self.state.is_start():
       if self.did_move():
         return 0
       else:
