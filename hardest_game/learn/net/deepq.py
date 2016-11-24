@@ -7,11 +7,6 @@ from ...shared.util import static_dir, ensure_exists
 
 DELTA_MIN = -10
 DELTA_MAX = 10
-LEARNING_RATE_MIN = 0.000025
-LEARNING_RATE_START = 0.00025
-LEARNING_RATE_DECAY = 0.96
-LEARNING_RATE_STEP = 5 * 1e3
-MOMENTUM = 0.95
 
 class DeepQ(Base):
   def __init__(self, name, input_dims, conv_templates, fc_templates, nactions, session, restore=False):
@@ -64,34 +59,37 @@ class DeepQ(Base):
       input_ = out
 
   def _add_out(self):
-    self.out = FC('output', self.fc_layers[-1], self.nactions, activation_fn=None).to_tf()
-    self.best_action = tf.argmax(self.out, dimension=1)
-    self.best_reward = tf.reduce_max(self.out, reduction_indices=1)
+    with tf.variable_scope('output'):
+      self.out = FC('out', self.fc_layers[-1], self.nactions, activation_fn=None).to_tf()
+      self.best_action = tf.argmax(self.out, dimension=1)
+      self.best_reward = tf.reduce_max(self.out, reduction_indices=1)
 
   def _add_loss(self):
-    actions_one_hot = tf.one_hot(self.actions, self.nactions, name='actions_one_hot')
-    q_estimate = tf.reduce_sum(self.out * actions_one_hot, reduction_indices=1, name='q_estimate')
-    delta = tf.clip_by_value(self.labels - q_estimate, DELTA_MIN, DELTA_MAX, name='delta')
-    self.loss = tf.reduce_mean(tf.square(delta), name='loss')
+    with tf.variable_scope('loss'):
+      actions_one_hot = tf.one_hot(self.actions, self.nactions, name='actions_one_hot')
+      q_estimate = tf.reduce_sum(self.out * actions_one_hot, reduction_indices=1, name='q_estimate')
+      delta = tf.clip_by_value(self.labels - q_estimate, DELTA_MIN, DELTA_MAX, name='delta')
+      self.loss = tf.reduce_mean(tf.square(delta), name='loss')
 
   def _add_optimizer(self):
-    self.global_step = tf.Variable(0, name='global_step', trainable=False)
-    self.learning_rate = tf.train.exponential_decay(
-      LEARNING_RATE_START,
-      self.global_step,
-      LEARNING_RATE_STEP,
-      LEARNING_RATE_DECAY,
-    )
-    learning_rate_op = tf.maximum(LEARNING_RATE_MIN, self.learning_rate)
-    self.optimizer = tf.train.RMSPropOptimizer(learning_rate_op, momentum=MOMENTUM) \
-                             .minimize(self.loss, global_step=self.global_step)
+    with tf.variable_scope('optimize'):
+      self.global_step = tf.Variable(0, name='global_step', trainable=False)
+      optimizer = tf.train.AdamOptimizer()
+      self.gradients = optimizer.compute_gradients(self.loss)
+      self.optimize = optimizer.apply_gradients(self.gradients, global_step=self.global_step)
 
   def _add_summaries(self):
-    tf.scalar_summary('learning_rate', self.learning_rate)
+    tf.scalar_summary('loss', self.loss)
 
     averaged_out = tf.reduce_mean(self.out, reduction_indices=0)
     for i in range(self.nactions):
       tf.histogram_summary('q[{}]'.format(i), averaged_out[i])
+
+    for grad, var in self.gradients:
+      tf.histogram_summary('{}/gradient'.format(var.name), grad)
+
+    for var in tf.trainable_variables():
+      tf.histogram_summary(var.name, var)
 
     self.summaries = tf.merge_all_summaries()
 
@@ -99,7 +97,7 @@ class DeepQ(Base):
     self.saver.save(self.session, self.model_file, global_step=self.global_step)
 
   def train(self, data, actions, labels):
-    _, summary = self.session.run([self.optimizer, self.summaries], {
+    _, summary = self.session.run([self.optimize, self.summaries], {
       self.data: data,
       self.actions: actions,
       self.labels: labels,
@@ -107,7 +105,7 @@ class DeepQ(Base):
     self.writer.add_summary(summary, global_step=tf.train.global_step(self.session, self.global_step))
 
   def train_loss(self, data, actions, labels):
-    _, loss, summary = self.session.run([self.optimizer, self.loss, self.summaries], {
+    _, loss, summary = self.session.run([self.optimize, self.loss, self.summaries], {
       self.data: data,
       self.actions: actions,
       self.labels: labels,
