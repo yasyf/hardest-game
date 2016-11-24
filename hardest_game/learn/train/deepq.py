@@ -4,7 +4,7 @@ import operator
 import numpy as np
 import random
 
-EPSILON_LIFE = 1e5
+EPSILON_LIFE = 1e4
 NUM_EPISODES = int(1e5)
 NUM_STEPS = 1e4
 SAVE_EVERY = 10
