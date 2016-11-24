@@ -4,11 +4,11 @@ import operator
 import numpy as np
 import random
 
-EPSILON_LIFE = 1e4
-NUM_EPISODES = int(1e6)
+EPSILON_LIFE = 1e5
+NUM_EPISODES = int(1e5)
 NUM_STEPS = 1e4
 SAVE_EVERY = 10
-GAMMA = 0.99
+GAMMA = 0.90
 
 class DeepQTrainer(DeepQAgent):
   def __init__(self, Simulator, verbose=False, num_steps=NUM_STEPS):
