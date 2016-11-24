@@ -5,4 +5,4 @@ class Level(object):
 
   @classmethod
   def default(cls):
-    return cls(1, 2)
+    return cls(2, 2)
