@@ -25,8 +25,10 @@ class ReplayMemory(object):
     if self.next_state.is_win():
       return ENDGAME_REWARD
 
+    did_move = self.did_move()
+
     if self.state.is_start():
-      if self.did_move():
+      if did_move:
         return 0
       else:
         return -1
@@ -34,7 +36,7 @@ class ReplayMemory(object):
     return (
       (COIN_REWARD * self.coins_gained())
       + self.log_distance_reduced()
-      + (MOVEMENT_REWARD * (1 if self.did_move() else -1))
+      + (MOVEMENT_REWARD * (1 if did_move else -1))
     )
 
   def _calc_is_terminal(self):
@@ -47,4 +49,4 @@ class ReplayMemory(object):
     return self.next_state.coins - self.state.coins
 
   def did_move(self):
-    return self.action != Move.stay
+    return self.action != Move.stay and (self.next_state.x != self.state.x or self.next_state.y != self.state.y)
