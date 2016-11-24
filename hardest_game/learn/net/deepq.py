@@ -12,7 +12,7 @@ LEARNING_RATE_START = 0.0000025
 LEARNING_RATE_DECAY = 0.96
 LEARNING_RATE_STEP = 5 * 1e3
 MOMENTUM = 0.95
-MODEL_DIR = static_dir('tf', 'models')
+MODEL_DIR = static_dir('tf', 'models', 'deepq')
 
 class DeepQ(Base):
   def __init__(self, input_dims, conv_templates, fc_templates, nactions, session, restore=False):
