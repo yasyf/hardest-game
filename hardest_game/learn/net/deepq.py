@@ -26,8 +26,17 @@ class DeepQ(Base):
     log_dir = static_dir('tf', 'logs', str(int(time.time())))
     self.writer = tf.train.SummaryWriter(log_dir, self.session.graph)
 
-    if restore and os.path.exists(model_dir):
-      self.saver.restore(self.session, tf.train.latest_checkpoint(model_dir))
+    self._restore_or_init_vars(model_dir, restore)
+
+  def _restore_or_init_vars(self, model_dir, restore):
+    exists = os.path.exists(model_dir)
+    if exists:
+      try:
+        checkpoint = tf.train.latest_checkpoint(model_dir)
+      except TypeError:
+        exists = False
+    if restore and exists:
+      self.saver.restore(self.session, checkpoint)
     else:
       init = tf.initialize_all_variables()
       self.session.run(init)
