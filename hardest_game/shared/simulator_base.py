@@ -78,6 +78,8 @@ class SimulatorBase(object):
   def capture(self):
     raise NotImplementedError
 
-  @abstractmethod
-  def sample(self):
-    raise NotImplementedError
+  def sample(self, use_cached=False):
+    if use_cached:
+      return self.__class__.Sample.load_or_gen(self.state.id(), self)
+    else:
+      return self.__class__.Sample.gen(self.state.id(), self)

@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from pickleable import Pickleable
 
 class SampleBase(Pickleable):
-  IMAGE_DIMS = (250, 475)
+  IMAGE_DIMS = None
 
   def __init__(self, state, image):
     self.state = state

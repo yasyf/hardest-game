@@ -3,6 +3,10 @@ import os, functools, time
 WAIT_DELAY = 0.05
 WAIT_TIME = 0.5
 
+GREYSCALE = [0.299, 0.587, 0.114]
+BLACK = 0
+WHITE = 255
+
 def static_dir(*path):
   return os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'static', *path))
 

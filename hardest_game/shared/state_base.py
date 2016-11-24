@@ -1,3 +1,4 @@
+import copy
 import hashlib
 
 class StateBase(object):
@@ -10,3 +11,6 @@ class StateBase(object):
 
   def id(self):
     return self.id_for_moves(self.moves)
+
+  def copy(self):
+    return copy.deepcopy(self)

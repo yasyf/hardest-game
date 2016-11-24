@@ -175,9 +175,3 @@ class HardestGameSimulator(SimulatorBase):
       self.log('capturing', image.name)
       self.driver.get_screenshot_as_file(image.name)
       return imread(image.name, mode='RGB')
-
-  def sample(self, use_cached=False):
-    if use_cached:
-      return Sample.load_or_gen(self.state.id(), self)
-    else:
-      return Sample.gen(self.state.id(), self)
