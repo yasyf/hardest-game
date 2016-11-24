@@ -43,7 +43,7 @@ class DeepQ(Base):
       self.data = tf.placeholder(tf.float32, [None, height, width, ninput], 'data')
       self.actions = tf.placeholder(tf.int32, [None], 'actions')
       self.labels = tf.placeholder(tf.float32, [None], 'labels')
-      self.epsilon = tf.placeholder(tf.float32, [None], 'epsilon')
+      self.epsilon = tf.placeholder(tf.float32, [], 'epsilon')
       self._create_conv_layers()
       self._create_fc_layers()
       self._add_out()
