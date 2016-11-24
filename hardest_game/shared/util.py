@@ -11,7 +11,7 @@ def static_dir(*path):
   return os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'static', *path))
 
 def ensure_exists(path):
-  if not os.path.exists(path):
+  if not os.path.exists(os.path.dirname(path)):
     os.makedirs(os.path.dirname(path))
   return path
 

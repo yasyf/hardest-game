@@ -9,9 +9,12 @@ class SampleBase(Pickleable):
     self.state = state
     self.image = self.preprocess(image)
 
-  def show(self):
+  def show(self, ion=False):
     plt.imshow(self.image, cmap=plt.get_cmap('gray'))
-    plt.show()
+    if ion:
+      plt.draw()
+    else:
+      plt.show()
 
   @abstractmethod
   def preprocess(self, image):

@@ -68,12 +68,12 @@ class SimulatorBase(object):
   def _make_move(self, move):
     raise NotImplementedError
 
-  def make_move(self, move, raise_on_end=False):
+  def make_move(self, move, raise_on_death=False):
     move = to_enum(move, self.__class__.Move)
     end = self._make_move(move)
     self.moves.append(move)
-    if end and raise_on_end:
-      raise GameEndError
+    if end and raise_on_death:
+      raise GameEndError('death!')
 
   def make_moves(self, moves):
     for move in moves:

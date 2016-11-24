@@ -1,43 +1,19 @@
 from __future__ import print_function, division
-from ...shared.history import History
-from ...shared.replay_memory_log import ReplayMemoryLog
-from ..net.deepq import DeepQ
+from ..shared.deepq_agent import DeepQAgent
 import operator
 import numpy as np
-import tensorflow as tf
 import random
 
-CONV_TEMPLATES = [('c1', 16, 8, 4), ('c2', 32, 4, 2)] # [(name, nout, size, stride)]
-FC_TEMPLATES = [('f1', 256)] # [(name, nout)]
 EPSILON_LIFE = 1e3
 NUM_EPISODES = int(1e3)
 NUM_STEPS = int(1e5)
 SAVE_EVERY = 10
 GAMMA = 0.99
 
-class DeepQTrainer(object):
+class DeepQTrainer(DeepQAgent):
   def __init__(self, Simulator, verbose=False):
-    self.Simulator = Simulator
-    self.session = tf.Session()
-    self.net = DeepQ(
-      Simulator.__name__,
-      Simulator.Sample.IMAGE_DIMS + (History.HISTORY_SIZE,),
-      CONV_TEMPLATES,
-      FC_TEMPLATES,
-      len(Simulator.Move),
-      self.session,
-    )
+    super(DeepQTrainer, self).__init__(Simulator, verbose=verbose)
     self.frameno = 0
-    self.history = History()
-    self.replay_memories = ReplayMemoryLog(Simulator.ReplayMemory, self.history)
-    self.verbose = verbose
-
-  def reset_simulator(self):
-    if hasattr(self, 'simulator'):
-      self.simulator.restart()
-    else:
-      self.simulator = self.Simulator(verbose=self.verbose)
-      self.simulator.start()
 
   @property
   def epsilon(self):
@@ -60,11 +36,7 @@ class DeepQTrainer(object):
 
   def _train_episode(self):
     self.step = 0
-    self.history.reset()
-    self.reset_simulator()
-
-    for _ in range(History.HISTORY_SIZE):
-      self.history.add(self.simulator.sample())
+    self.reset()
 
     for _ in range(NUM_STEPS):
       try:
@@ -76,14 +48,7 @@ class DeepQTrainer(object):
     self.step += 1
     self.frameno += 1
 
-    action = self.next_action()
-    self.simulator.make_move(action)
-    self.history.add(self.simulator.sample())
-    memory = self.replay_memories.snapshot()
-
-    if self.verbose:
-      print('Action: {}, Reward: {}'.format(action, memory.reward))
-
+    action, memory = self._make_next_move()
     minibatch = self.replay_memories.sample_minibatch()
     data = np.array(map(operator.attrgetter('data'), minibatch))
     actions = np.array(map(operator.attrgetter('action'), minibatch))

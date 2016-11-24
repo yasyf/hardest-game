@@ -7,8 +7,8 @@ from ...shared.util import static_dir, ensure_exists
 
 DELTA_MIN = -10
 DELTA_MAX = 10
-LEARNING_RATE_MIN = 0.025
-LEARNING_RATE_START = 0.25
+LEARNING_RATE_MIN = 0.000025
+LEARNING_RATE_START = 0.00025
 LEARNING_RATE_DECAY = 0.96
 LEARNING_RATE_STEP = 5 * 1e3
 MOMENTUM = 0.95
@@ -22,6 +22,19 @@ class DeepQ(Base):
     self.session = session
     self.model_file = ensure_exists(static_dir('tf', 'models', name, 'deepq'))
 
+    self._create_graph(input_dims)
+
+    self.saver = tf.train.Saver(max_to_keep=5, keep_checkpoint_every_n_hours=2)
+    log_dir = static_dir('tf', 'logs', str(int(time.time())))
+    self.writer = tf.train.SummaryWriter(log_dir, self.session.graph)
+
+    if restore:
+      self.saver.restore(self.session, tf.train.latest_checkpoint(static_dir('tf', 'models', name)))
+    else:
+      init = tf.initialize_all_variables()
+      self.session.run(init)
+
+  def _create_graph(self, input_dims):
     (height, width, ninput) = input_dims
     with tf.variable_scope('deepq'):
       self.data = tf.placeholder(tf.float32, [None, height, width, ninput], 'data')
@@ -33,16 +46,6 @@ class DeepQ(Base):
       self._add_loss()
       self._add_optimizer()
       self._add_summaries()
-
-    if restore:
-      self.saver.restore(self.session, self.model_file)
-    else:
-      init = tf.initialize_all_variables()
-      self.session.run(init)
-
-    self.saver = tf.train.Saver(max_to_keep=5, keep_checkpoint_every_n_hours=2)
-    log_dir = static_dir('tf', 'logs', str(int(time.time())))
-    self.writer = tf.train.SummaryWriter(log_dir, self.session.graph)
 
   def _create_conv_layers(self):
     self.conv_layers = []
