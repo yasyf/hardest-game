@@ -16,18 +16,22 @@ EPSILON_LIFE = 1e2
 INPUT_DIMS = Sample.IMAGE_DIMS + (History.HISTORY_SIZE,)
 NUM_EPISODES = int(1e3)
 NUM_STEPS = int(1e3)
-GAMMA = 0.99
+GAMMA = 0.90
 
 class DeepQTrainer(object):
   def __init__(self):
+    self.simulator = None
     self.session = tf.Session()
     self.net = DeepQ(INPUT_DIMS, CONV_TEMPLATES, FC_TEMPLATES, len(Move), self.session)
     self.frameno = 0
     self.step = 0
-    self.simulator = Simulator()
     self.history = History()
     self.replay_memories = ReplayMemoryLog(self.history)
 
+  def reset_simulator(self):
+    if self.simulator:
+      self.simulator.quit()
+    self.simulator = Simulator(verbose=False)
     self.simulator.start()
 
   @property
@@ -51,8 +55,9 @@ class DeepQTrainer(object):
 
   def _train_episode(self):
     self.step = 0
-
     self.history.reset()
+    self.reset_simulator()
+
     for _ in range(History.HISTORY_SIZE):
       self.history.add(self.simulator.sample(use_cached=False))
 
@@ -70,6 +75,8 @@ class DeepQTrainer(object):
     self.simulator.make_move(action)
     self.history.add(self.simulator.sample())
     memory = self.replay_memories.snapshot()
+
+    print('Action: {}, Reward: {}'.format(action, memory.reward))
 
     if self.step >= ReplayMemoryLog.MINIBATCH_SIZE:
       minibatch = self.replay_memories.sample_minibatch()

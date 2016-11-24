@@ -5,7 +5,7 @@ import tensorflow as tf
 from ...game.util import static_dir
 
 LEARNING_RATE_MIN = 0.00025
-LEARNING_RATE_START = 0.1
+LEARNING_RATE_START = 0.0025
 LEARNING_RATE_DECAY = 0.96
 LEARNING_RATE_STEP = 5 * 1e3
 MOMENTUM = 0.95
