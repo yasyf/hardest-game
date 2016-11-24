@@ -1,4 +1,5 @@
 from ..shared.replay_memory_base import ReplayMemoryBase
+from move import ToyGameMove as Move
 
 REWARD = 1
 
@@ -9,6 +10,9 @@ class ToyGameReplayMemory(ReplayMemoryBase):
 
     if self.next_state.is_win():
       return REWARD
+
+    if self.action != Move.stay:
+      return REWARD / 10.
 
     return 0
 
