@@ -31,11 +31,8 @@ class DeepQ(Base):
   def _restore_or_init_vars(self, model_dir, restore):
     exists = os.path.exists(model_dir)
     if exists:
-      try:
-        checkpoint = tf.train.latest_checkpoint(model_dir)
-      except TypeError:
-        exists = False
-    if restore and exists:
+      checkpoint = tf.train.latest_checkpoint(model_dir)
+    if restore and exists and checkpoint:
       self.saver.restore(self.session, checkpoint)
     else:
       init = tf.initialize_all_variables()
