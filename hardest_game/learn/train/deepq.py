@@ -20,6 +20,7 @@ class DeepQTrainer(object):
     self.Simulator = Simulator
     self.session = tf.Session()
     self.net = DeepQ(
+      Simulator.__name__,
       Simulator.Sample.IMAGE_DIMS + (History.HISTORY_SIZE,),
       CONV_TEMPLATES,
       FC_TEMPLATES,

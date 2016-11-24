@@ -10,6 +10,11 @@ WHITE = 255
 def static_dir(*path):
   return os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, 'static', *path))
 
+def ensure_exists(path):
+  if not os.path.exists(path):
+    os.makedirs(os.path.dirname(path))
+  return path
+
 data_file = lambda *path: static_dir('data', *path)
 
 def to_enum(val, klass):

@@ -3,7 +3,7 @@ from .base import Base
 from .conv2d import Conv2D
 from .fc import FC
 import tensorflow as tf
-from ...shared.util import static_dir
+from ...shared.util import static_dir, ensure_exists
 
 DELTA_MIN = -10
 DELTA_MAX = 10
@@ -12,15 +12,15 @@ LEARNING_RATE_START = 0.25
 LEARNING_RATE_DECAY = 0.96
 LEARNING_RATE_STEP = 5 * 1e3
 MOMENTUM = 0.95
-MODEL_DIR = static_dir('tf', 'models', 'deepq')
 
 class DeepQ(Base):
-  def __init__(self, input_dims, conv_templates, fc_templates, nactions, session, restore=False):
+  def __init__(self, name, input_dims, conv_templates, fc_templates, nactions, session, restore=False):
     self.input_dims = input_dims
     self.conv_templates = conv_templates
     self.fc_templates = fc_templates
     self.nactions = nactions
     self.session = session
+    self.model_file = ensure_exists(static_dir('tf', 'models', name, 'deepq'))
 
     (height, width, ninput) = input_dims
     with tf.variable_scope('deepq'):
@@ -35,7 +35,7 @@ class DeepQ(Base):
       self._add_summaries()
 
     if restore:
-      self.saver.restore(self.session, MODEL_DIR)
+      self.saver.restore(self.session, self.model_file)
     else:
       init = tf.initialize_all_variables()
       self.session.run(init)
@@ -93,7 +93,7 @@ class DeepQ(Base):
     self.summaries = tf.merge_all_summaries()
 
   def save(self):
-    self.saver.save(self.session, MODEL_DIR, global_step=self.global_step)
+    self.saver.save(self.session, self.model_file, global_step=self.global_step)
 
   def train(self, data, actions, labels):
     _, summary = self.session.run([self.optimizer, self.summaries], {
