@@ -4,8 +4,10 @@ from .fc import FC
 import tensorflow as tf
 from ...game.util import static_dir
 
-LEARNING_RATE_MIN = 0.00025
-LEARNING_RATE_START = 0.0025
+DELTA_MIN = -10
+DELTA_MAX = 10
+LEARNING_RATE_MIN = 0.0000025
+LEARNING_RATE_START = 0.000025
 LEARNING_RATE_DECAY = 0.96
 LEARNING_RATE_STEP = 5 * 1e3
 MOMENTUM = 0.95
@@ -65,7 +67,7 @@ class DeepQ(Base):
   def _add_loss(self):
     actions_one_hot = tf.one_hot(self.actions, self.nactions, name='actions_one_hot')
     q_estimate = tf.reduce_sum(self.out * actions_one_hot, reduction_indices=1, name='q_estimate')
-    delta = self.labels - q_estimate
+    delta = tf.clip_by_value(self.labels - q_estimate, DELTA_MIN, DELTA_MAX, name='delta')
     self.loss = tf.reduce_mean(tf.square(delta), name='loss')
 
   def _add_optimizer(self):

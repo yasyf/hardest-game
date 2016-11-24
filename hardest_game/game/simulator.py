@@ -170,7 +170,7 @@ class Simulator(object):
       self.y += dy
       time.sleep(ANIMATION_DELAY)
 
-  def make_move(self, move):
+  def make_move(self, move, raise_on_death=False):
     move = to_enum(move, Move)
     if move == Move.up:
       self._move_by(0, -MOVE_DISTANCE)
@@ -187,7 +187,7 @@ class Simulator(object):
 
     self.moves.append(move)
 
-    if self.deaths > 0:
+    if self.deaths > 0 and raise_on_death:
       raise GameError('died!')
 
   def make_moves(self, moves):

@@ -2,7 +2,7 @@ from move import Move
 
 ENDGAME_REWARD = 1000
 COIN_REWARD = 10
-MOVEMENT_REWARD = 0.01
+MOVEMENT_REWARD = 0.1
 
 class ReplayMemory(object):
   def __init__(self, history):

@@ -12,11 +12,11 @@ import random
 
 CONV_TEMPLATES = [('c1', 16, 8, 4), ('c2', 32, 4, 2)] # [(name, nout, size, stride)]
 FC_TEMPLATES = [('f1', 256)] # [(name, nout)]
-EPSILON_LIFE = 1e2
+EPSILON_LIFE = 1e3
 INPUT_DIMS = Sample.IMAGE_DIMS + (History.HISTORY_SIZE,)
 NUM_EPISODES = int(1e3)
 NUM_STEPS = int(1e5)
-GAMMA = 0.90
+GAMMA = 0.99
 
 class DeepQTrainer(object):
   def __init__(self):
