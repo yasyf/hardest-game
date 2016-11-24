@@ -1,4 +1,5 @@
 from ..shared.simulator_base import SimulatorBase
+from level import Level
 from move import ToyGameMove as Move
 from replay_memory import ToyGameReplayMemory as ReplayMemory
 from sample import ToyGameSample as Sample
@@ -10,9 +11,11 @@ class ToyGameSimulator(SimulatorBase):
   Sample = Sample
   State = State
 
-  def __init__(self, level, *args, **kwargs):
+  def __init__(self, level=None, *args, **kwargs):
     kwargs['name'] = kwargs.get('name', self.__class__.__name__)
     super(ToyGameSimulator, self).__init__(*args, **kwargs)
+
+    level = level or Level.default()
     self._state = State(0, True, level, [])
     self.level = level
     self.frame = 0
@@ -26,9 +29,6 @@ class ToyGameSimulator(SimulatorBase):
   @property
   def state(self):
     return self._state.copy()
-
-  def _move_by(self, d):
-    self._state.x += int(d)
 
   @property
   def enemy_present(self):
@@ -46,9 +46,9 @@ class ToyGameSimulator(SimulatorBase):
     self.frame += 1
 
     if move == Move.left:
-      self._move_by(-1)
-    if move == Move.right:
-      self._move_by(1)
+      self._state.x -= 1
+    elif move == Move.right:
+      self._state.x += 1
     elif move == Move.stay:
       pass
     else:

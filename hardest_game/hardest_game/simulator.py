@@ -35,7 +35,6 @@ class HardestGameSimulator(SimulatorBase):
       self.use_remote = SAUCE_USERNAME and SAUCE_KEY
     else:
       self.use_remote = use_remote
-    self.driver = self.new_driver()
 
   def new_driver(self):
     if self.use_remote:
@@ -63,6 +62,8 @@ class HardestGameSimulator(SimulatorBase):
     chain.perform()
 
   def _start(self):
+    self.driver = self.new_driver()
+
     if self.use_remote:
       path = SWFURL
     else:

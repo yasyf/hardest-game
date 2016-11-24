@@ -7,15 +7,29 @@ HEIGHT = 20
 NSQUARES = 4
 
 class ToyGameState(StateBase):
-  MAX_X = 3
+  MAX_X = NSQUARES - 1
   IMAGE_DIMS = (WIDTH, HEIGHT)
 
   def __init__(self, x, alive, level, moves):
     super(ToyGameState, self).__init__(moves)
 
-    self.x = int(x)
+    self._x = int(x)
     self.alive = alive
     self.level = level
+
+  @property
+  def x(self):
+    return self._x
+
+  @x.setter
+  def x(self, new_x):
+    new_x = int(new_x)
+    if new_x < 0:
+      self._x = 0
+    elif new_x > self.MAX_X:
+      self._x = self.MAX_X
+    else:
+      self._x = new_x
 
   def is_win(self):
     return self.alive and self.x == self.MAX_X

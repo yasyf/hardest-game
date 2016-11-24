@@ -33,7 +33,8 @@ class DeepQTrainer(object):
   def reset_simulator(self):
     if hasattr(self, 'simulator'):
       self.simulator.quit()
-    self.simulator = self.Simulator(verbose=False)
+    else:
+      self.simulator = self.Simulator(verbose=False)
     self.simulator.start()
 
   @property
