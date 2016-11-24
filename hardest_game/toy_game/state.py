@@ -36,3 +36,6 @@ class ToyGameState(StateBase):
     if frame % self.level.enemy_phase == 0:
       d.rectangle(self._bounding_box(self.level.enemy_loc, 5, 5), fill='blue', outline='blue')
     return img
+
+  def distance_to_end(self):
+    return self.MAX_X - self.x
