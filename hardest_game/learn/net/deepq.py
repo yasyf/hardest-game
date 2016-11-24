@@ -1,3 +1,4 @@
+import time
 from .base import Base
 from .conv2d import Conv2D
 from .fc import FC
@@ -12,7 +13,6 @@ LEARNING_RATE_DECAY = 0.96
 LEARNING_RATE_STEP = 5 * 1e3
 MOMENTUM = 0.95
 MODEL_DIR = static_dir('tf', 'models')
-LOG_DIR = static_dir('tf', 'logs')
 
 class DeepQ(Base):
   def __init__(self, input_dims, conv_templates, fc_templates, nactions, session, restore=False):
@@ -41,7 +41,8 @@ class DeepQ(Base):
       self.session.run(init)
 
     self.saver = tf.train.Saver()
-    self.writer = tf.train.SummaryWriter(LOG_DIR, self.session.graph)
+    log_dir = static_dir('tf', 'logs', str(int(time.time())))
+    self.writer = tf.train.SummaryWriter(log_dir, self.session.graph)
 
   def _create_conv_layers(self):
     self.conv_layers = []
@@ -86,14 +87,16 @@ class DeepQ(Base):
     tf.scalar_summary('learning_rate', self.learning_rate)
 
     averaged_out = tf.reduce_mean(self.out, reduction_indices=0)
-    out_summaries = [tf.histogram_summary('q[{}]'.format(i), averaged_out[i]) for i in range(self.nactions)]
-    self.out_summary = tf.merge_summary(out_summaries, 'out_summaries')
+    for i in range(self.nactions):
+      tf.histogram_summary('q[{}]'.format(i), averaged_out[i])
+
+    self.summaries = tf.merge_all_summaries()
 
   def save(self):
     self.saver.save(self.session, MODEL_DIR, global_step=self.global_step)
 
   def train(self, data, actions, labels):
-    _, _, loss, summary = self.session.run([self.optimizer, self.out, self.loss, self.out_summary], {
+    _, loss, summary = self.session.run([self.optimizer, self.loss, self.summaries], {
       self.data: data,
       self.actions: actions,
       self.labels: labels,

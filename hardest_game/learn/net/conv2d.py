@@ -20,7 +20,7 @@ class Conv2D(Base):
     self.padding = padding
     self.activation_fn = activation_fn
 
-    with tf.variable_scope('conv2d'):
+    with tf.variable_scope(name):
       self.out = tf.contrib.layers.convolution2d(
         inputs=input_tensor,
         num_outputs=noutput,
@@ -28,7 +28,7 @@ class Conv2D(Base):
         activation_fn=activation_fn,
         stride=[stride, stride],
         padding=padding,
-        scope=name,
+        scope='conv2d',
       )
 
   def to_tf(self):

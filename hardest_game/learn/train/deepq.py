@@ -59,13 +59,15 @@ class DeepQTrainer(object):
     self.reset_simulator()
 
     for _ in range(History.HISTORY_SIZE):
-      self.history.add(self.simulator.sample(use_cached=False))
+      self.history.add(self.simulator.sample())
 
     for _ in range(NUM_STEPS):
       try:
         self._step()
       except StopIteration:
         break
+
+    self.net.save()
 
   def _step(self):
     self.step += 1
