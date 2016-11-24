@@ -1,5 +1,4 @@
 from __future__ import division
-from .replay_memory import ReplayMemory
 from collections import deque
 import random
 
@@ -8,12 +7,13 @@ REPLAY_MEMORY_SIZE = 1e3
 class ReplayMemoryLog(object):
   MINIBATCH_SIZE = 32
 
-  def __init__(self, history):
+  def __init__(self, ReplayMemory, history):
     self.memories = deque()
     self.history = history
+    self.ReplayMemory = ReplayMemory
 
   def snapshot(self):
-    memory = ReplayMemory(self.history)
+    memory = self.ReplayMemory(self.history)
     if len(self.memories) >= REPLAY_MEMORY_SIZE:
       self.memories.popleft()
     self.memories.append(memory)

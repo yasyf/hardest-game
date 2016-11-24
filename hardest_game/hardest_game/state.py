@@ -1,27 +1,21 @@
-import hashlib
 import numpy as np
+from ..shared.state_base import StateBase
 
-class State(object):
+class HardestGameState(StateBase):
   def __init__(self, x, y, coins, level, deaths, moves):
+    super(HardestGameState, self).__init__(moves)
+
     self.x = x
     self.y = y
     self.coins = coins
     self.level = level
     self.deaths = deaths
-    self.moves = moves
-
-  @staticmethod
-  def id_for_moves(moves):
-    return hashlib.md5(''.join(map(lambda x: str(x.value), moves))).hexdigest()
 
   def is_start(self):
     return self.level.start.contains(self)
 
   def is_end(self):
     return self.level.end.contains(self)
-
-  def id(self):
-    return self.id_for_moves(self.moves)
 
   def is_death(self):
     return self.deaths > 0

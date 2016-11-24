@@ -1,24 +1,11 @@
-from move import Move
+from ..shared.replay_memory_base import ReplayMemoryBase
+from move import HardestGameMove as Move
 
 ENDGAME_REWARD = 1000
 COIN_REWARD = 10
 MOVEMENT_REWARD = 0.1
 
-class ReplayMemory(object):
-  def __init__(self, history):
-    self.state = history.get(2).state
-    self.next_state = history.get().state
-
-    self.data = history.last_data
-    self.next_data = history.data
-
-    self.reward = self._calc_reward()
-    self.is_terminal = self._calc_is_terminal()
-
-  @property
-  def action(self):
-    return self.next_state.moves[-1]
-
+class HardestGameReplayMemory(ReplayMemoryBase):
   def _calc_reward(self):
     if self.next_state.is_death():
       return -ENDGAME_REWARD

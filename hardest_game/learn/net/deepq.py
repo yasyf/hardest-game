@@ -3,7 +3,7 @@ from .base import Base
 from .conv2d import Conv2D
 from .fc import FC
 import tensorflow as tf
-from ...game.util import static_dir
+from ...shared.util import static_dir
 
 DELTA_MIN = -10
 DELTA_MAX = 10

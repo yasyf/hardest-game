@@ -1,13 +1,15 @@
 from __future__ import print_function, division
 from level import Level
-from move import Move
+from move import HardestGameMove as Move
 from property import Property
 from scipy.misc import imread
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from sample import Sample
-from state import State
-from util import static_dir, to_enum, waitable
+from sample import HardestGameSample as Sample
+from state import HardestGameState as State
+from replay_memory import HardestGameReplayMemory as ReplayMemory
+from ..shared.util import static_dir, waitable
+from ..shared.simulator_base import SimulatorBase
 import time, tempfile, os
 
 SAUCE_USERNAME = os.getenv('SAUCE_USERNAME')
@@ -18,15 +20,17 @@ MOVE_DISTANCE = 4
 ANIMATION_DELAY = 0.05
 BASE_FRAME = 60
 
-class GameError(Exception):
-  pass
+class HardestGameSimulator(SimulatorBase):
+  Move = Move
+  ReplayMemory = ReplayMemory
+  Sample = Sample
+  State = State
 
-class Simulator(object):
-  def __init__(self, name='Simulator', time_step=0.1, verbose=True, moves=None, use_remote=False):
-    self.name = name
+  def __init__(self, time_step=0.1, use_remote=False, **kwargs):
+    kwargs['name'] = kwargs.get('name', self.__class__.__name__)
+    super(HardestGameSimulator, self).__init__(**kwargs)
+
     self.steps = int(time_step / ANIMATION_DELAY)
-    self.verbose = verbose
-    self.moves = moves or []
     if use_remote is None:
       self.use_remote = SAUCE_USERNAME and SAUCE_KEY
     else:
@@ -50,10 +54,6 @@ class Simulator(object):
       options.add_argument('--always-authorize-plugins=true --mute-audio=true')
       return webdriver.Chrome(chrome_options=options)
 
-  def log(self, *args):
-    if self.verbose:
-      print('[{}]: {}'.format(self.name, ' '.join(map(str, args))))
-
   def click_at(self, pos, after=1):
     self.log('sleeping', after)
     time.sleep(after)
@@ -62,7 +62,7 @@ class Simulator(object):
     chain = webdriver.ActionChains(self.driver).move_to_element_with_offset(body, *pos).click()
     chain.perform()
 
-  def start(self):
+  def _start(self):
     if self.use_remote:
       path = SWFURL
     else:
@@ -73,24 +73,8 @@ class Simulator(object):
     self.play()
     time.sleep(4)
 
-    moves, self.moves = self.moves, []
-    self.make_moves(moves)
-
-  def quit(self):
-    try:
-      self.driver.close()
-    except:
-      pass
-
-  def __enter__(self):
-    self.start()
-    return self
-
-  def __exit__(self, exc_type, exc_value, traceback):
-    self.quit()
-
-  def __del__(self):
-    self.quit()
+  def _quit(self):
+    self.driver.close()
 
   def _execute(self, fn, *args):
     argstr = ['"{}"'.format(arg) for arg in args]
@@ -170,8 +154,7 @@ class Simulator(object):
       self.y += dy
       time.sleep(ANIMATION_DELAY)
 
-  def make_move(self, move, raise_on_death=False):
-    move = to_enum(move, Move)
+  def _make_move(self, move):
     if move == Move.up:
       self._move_by(0, -MOVE_DISTANCE)
     elif move == Move.down:
@@ -185,14 +168,7 @@ class Simulator(object):
     else:
       raise ValueError(move)
 
-    self.moves.append(move)
-
-    if self.deaths > 0 and raise_on_death:
-      raise GameError('died!')
-
-  def make_moves(self, moves):
-    for move in moves:
-      self.make_move(move)
+    return self.deaths > 0
 
   def capture(self):
     with tempfile.NamedTemporaryFile(suffix='.png') as image:
