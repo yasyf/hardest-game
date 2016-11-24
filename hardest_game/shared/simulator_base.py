@@ -35,6 +35,11 @@ class SimulatorBase(object):
     moves, self.moves = self.moves, []
     self.make_moves(moves)
 
+  def restart(self):
+    self.moves = []
+    self._quit()
+    self._start()
+
   @abstractmethod
   def _quit(self):
     raise NotImplementedError

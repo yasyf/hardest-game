@@ -40,7 +40,7 @@ class DeepQ(Base):
       init = tf.initialize_all_variables()
       self.session.run(init)
 
-    self.saver = tf.train.Saver()
+    self.saver = tf.train.Saver(max_to_keep=5, keep_checkpoint_every_n_hours=2)
     log_dir = static_dir('tf', 'logs', str(int(time.time())))
     self.writer = tf.train.SummaryWriter(log_dir, self.session.graph)
 
@@ -96,6 +96,14 @@ class DeepQ(Base):
     self.saver.save(self.session, MODEL_DIR, global_step=self.global_step)
 
   def train(self, data, actions, labels):
+    _, summary = self.session.run([self.optimizer, self.summaries], {
+      self.data: data,
+      self.actions: actions,
+      self.labels: labels,
+    })
+    self.writer.add_summary(summary, global_step=tf.train.global_step(self.session, self.global_step))
+
+  def train_loss(self, data, actions, labels):
     _, loss, summary = self.session.run([self.optimizer, self.loss, self.summaries], {
       self.data: data,
       self.actions: actions,

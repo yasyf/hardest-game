@@ -20,4 +20,4 @@ class ReplayMemoryLog(object):
     return memory
 
   def sample_minibatch(self):
-    return random.sample(self.memories, self.MINIBATCH_SIZE)
+    return random.sample(self.memories, min(len(self.memories), self.MINIBATCH_SIZE))

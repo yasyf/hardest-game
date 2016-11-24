@@ -12,10 +12,11 @@ FC_TEMPLATES = [('f1', 256)] # [(name, nout)]
 EPSILON_LIFE = 1e3
 NUM_EPISODES = int(1e3)
 NUM_STEPS = int(1e5)
+SAVE_EVERY = 10
 GAMMA = 0.99
 
 class DeepQTrainer(object):
-  def __init__(self, Simulator):
+  def __init__(self, Simulator, verbose=False):
     self.Simulator = Simulator
     self.session = tf.Session()
     self.net = DeepQ(
@@ -26,16 +27,16 @@ class DeepQTrainer(object):
       self.session,
     )
     self.frameno = 0
-    self.step = 0
     self.history = History()
     self.replay_memories = ReplayMemoryLog(Simulator.ReplayMemory, self.history)
+    self.verbose = verbose
 
   def reset_simulator(self):
     if hasattr(self, 'simulator'):
-      self.simulator.quit()
+      self.simulator.restart()
     else:
-      self.simulator = self.Simulator(verbose=False)
-    self.simulator.start()
+      self.simulator = self.Simulator(verbose=self.verbose)
+      self.simulator.start()
 
   @property
   def epsilon(self):
@@ -70,8 +71,6 @@ class DeepQTrainer(object):
       except StopIteration:
         break
 
-    self.net.save()
-
   def _step(self):
     self.step += 1
     self.frameno += 1
@@ -81,20 +80,27 @@ class DeepQTrainer(object):
     self.history.add(self.simulator.sample())
     memory = self.replay_memories.snapshot()
 
-    print('Action: {}, Reward: {}'.format(action, memory.reward))
+    if self.verbose:
+      print('Action: {}, Reward: {}'.format(action, memory.reward))
 
-    if self.step >= ReplayMemoryLog.MINIBATCH_SIZE:
-      minibatch = self.replay_memories.sample_minibatch()
-      data = np.array(map(operator.attrgetter('data'), minibatch))
-      actions = np.array(map(operator.attrgetter('action'), minibatch))
-      labels = np.array(map(self._label_for_memory, minibatch))
-      loss = self.net.train(data, actions, labels)
+    minibatch = self.replay_memories.sample_minibatch()
+    data = np.array(map(operator.attrgetter('data'), minibatch))
+    actions = np.array(map(operator.attrgetter('action'), minibatch))
+    labels = np.array(map(self._label_for_memory, minibatch))
+
+    if self.verbose:
+      loss = self.net.train_loss(data, actions, labels)
       print('Loss: {}'.format(loss))
+    else:
+      self.net.train(data, actions, labels)
 
     if memory.is_terminal:
+      print('Final Reward: {}'.format(memory.reward))
       raise StopIteration
 
   def train(self):
     for i in range(NUM_EPISODES):
       print('Episode {}'.format(i))
       self._train_episode()
+      if i % SAVE_EVERY == 0:
+        self.net.save()

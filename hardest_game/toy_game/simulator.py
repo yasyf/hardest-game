@@ -14,31 +14,43 @@ class ToyGameSimulator(SimulatorBase):
   def __init__(self, level=None, *args, **kwargs):
     kwargs['name'] = kwargs.get('name', self.__class__.__name__)
     super(ToyGameSimulator, self).__init__(*args, **kwargs)
-
-    level = level or Level.default()
-    self._state = State(0, True, level, [])
-    self.level = level
-    self.frame = 0
+    self.level = level or Level.default()
 
   def _start(self):
-    pass
+    self.alive = True
+    self._x = 0
+    self.frame = 0
 
   def _quit(self):
     pass
 
   @property
+  def x(self):
+    return self._x
+
+  @x.setter
+  def x(self, new_x):
+    new_x = int(new_x)
+    if new_x < 0:
+      self._x = 0
+    elif new_x > State.MAX_X:
+      self._x = State.MAX_X
+    else:
+      self._x = new_x
+
+  @property
   def state(self):
-    return self._state.copy()
+    return State(self.x, self.alive, self.level, self.moves)
 
   @property
   def enemy_present(self):
     return self.frame % self.level.enemy_phase == 0
 
   def _check_collision(self):
-    if not self._state.alive:
+    if not self.alive:
       return True
-    if self.enemy_present and self._state.x == self.level.enemy_loc:
-      self._state.alive = False
+    if self.enemy_present and self.x == self.level.enemy_loc:
+      self.alive = False
       return True
     return False
 
@@ -46,9 +58,9 @@ class ToyGameSimulator(SimulatorBase):
     self.frame += 1
 
     if move == Move.left:
-      self._state.x -= 1
+      self.x -= 1
     elif move == Move.right:
-      self._state.x += 1
+      self.x += 1
     elif move == Move.stay:
       pass
     else:
@@ -57,4 +69,4 @@ class ToyGameSimulator(SimulatorBase):
     return self._check_collision()
 
   def capture(self):
-    return self._state.draw(self.frame)
+    return self.state.draw(self.frame)
