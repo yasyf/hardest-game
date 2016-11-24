@@ -22,7 +22,6 @@ class DeepQ(Base):
 
     self._create_graph(input_dims)
 
-    self.saver = tf.train.Saver(max_to_keep=5, keep_checkpoint_every_n_hours=2)
     log_dir = static_dir('tf', 'logs', str(int(time.time())))
     self.writer = tf.train.SummaryWriter(log_dir, self.session.graph)
 
@@ -50,6 +49,7 @@ class DeepQ(Base):
       self._add_loss()
       self._add_optimizer()
       self._add_summaries()
+      self.saver = tf.train.Saver(max_to_keep=5, keep_checkpoint_every_n_hours=2)
 
   def _create_conv_layers(self):
     self.conv_layers = []
@@ -96,9 +96,6 @@ class DeepQ(Base):
 
     for grad, var in self.gradients:
       tf.histogram_summary('{}/gradient'.format(var.name), grad)
-
-    for var in tf.trainable_variables():
-      tf.histogram_summary(var.name, var)
 
     self.summaries = tf.merge_all_summaries()
 
