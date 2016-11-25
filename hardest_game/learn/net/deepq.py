@@ -8,6 +8,7 @@ import os
 
 DELTA_MIN = -10
 DELTA_MAX = 10
+WRITE_SUMMARY_EVERY = 100
 
 class DeepQ(Base):
   def __init__(self, name, input_dims, conv_templates, fc_templates, nactions, session, restore=False):
@@ -121,19 +122,20 @@ class DeepQ(Base):
     feed_dict.update(extra_feed_dict or {})
     return feed_dict
 
+  def _train(self, ops, feed_dict):
+    step = tf.train.global_step(self.session, self.global_step)
+    if step % WRITE_SUMMARY_EVERY == 0:
+      ops.append(self.summaries)
+    results = self.session.run(ops, feed_dict)
+    if step % WRITE_SUMMARY_EVERY == 0:
+      self.writer.add_summary(results.pop(), global_step=step)
+    return results
+
   def train(self, data, actions, labels, extra_feed_dict=None):
-    _, summary = self.session.run(
-      [self.optimize, self.summaries],
-      self.feed_dict(data, actions, labels, extra_feed_dict)
-    )
-    self.writer.add_summary(summary, global_step=tf.train.global_step(self.session, self.global_step))
+    self._train([self.optimize], self.feed_dict(data, actions, labels, extra_feed_dict))
 
   def train_loss(self, data, actions, labels, extra_feed_dict=None):
-    _, loss, summary = self.session.run(
-      [self.optimize, self.loss, self.summaries],
-      self.feed_dict(data, actions, labels, extra_feed_dict)
-    )
-    self.writer.add_summary(summary, global_step=tf.train.global_step(self.session, self.global_step))
+    _, loss = self._train([self.optimize, self.loss], self.feed_dict(data, actions, labels, extra_feed_dict))
     return loss
 
   def eval_best_action(self, data):
