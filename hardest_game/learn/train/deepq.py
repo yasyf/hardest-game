@@ -8,7 +8,7 @@ EPSILON_LIFE = 1e5
 NUM_EPISODES = int(1e5)
 NUM_STEPS = 1e4
 SAVE_EVERY = 5e3
-GAMMA = 0.99
+GAMMA = 0.90
 
 class DeepQTrainer(DeepQAgent):
   def __init__(self, Simulator, verbose=False, num_steps=NUM_STEPS):
