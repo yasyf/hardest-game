@@ -7,6 +7,7 @@ def run_main():
     simulator.make_move('right')
     simulator.make_move('stay')
     simulator.sample().show()
+    print simulator.sample().state.feature_vector()
 
 if __name__ == '__main__':
   run_main()

@@ -42,16 +42,12 @@ class ToyGameSimulator(SimulatorBase):
 
   @property
   def state(self):
-    return State(self.x, self.alive, self.level, self.moves)
-
-  @property
-  def enemy_present(self):
-    return self.frame % self.level.enemy_phase == 0
+    return State(self.x, self.frame, self.alive, self.level, self.moves)
 
   def _check_collision(self):
     if not self.alive:
       return True
-    if self.enemy_present and self.x == self.level.enemy_loc:
+    if self.state.enemy_shown() and self.x == self.level.enemy_loc:
       self.alive = False
       return True
     return False
@@ -71,4 +67,4 @@ class ToyGameSimulator(SimulatorBase):
     return self._check_collision()
 
   def capture(self):
-    return self.state.draw(self.frame)
+    return self.state.draw()

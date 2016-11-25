@@ -13,7 +13,7 @@ class DeepQAgent(object):
     self.net = DeepQ(
       Simulator.__name__,
       Simulator.Sample.IMAGE_DIMS + (Simulator.History.HISTORY_SIZE,),
-      self.CONV_TEMPLATES,
+      self.CONV_TEMPLATES if len(Simulator.Sample.IMAGE_DIMS) > 1 else [],
       self.FC_TEMPLATES,
       len(Simulator.Move),
       self.session,
