@@ -1,10 +1,11 @@
 from __future__ import print_function, division
 from level import Level
-from move import HardestGameMove as Move
 from property import Property
 from scipy.misc import imread
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
+from move import HardestGameMove as Move
+from history import HardestGameHistory as History
 from sample import HardestGameSample as Sample
 from state import HardestGameState as State
 from replay_memory import HardestGameReplayMemory as ReplayMemory
@@ -21,6 +22,7 @@ ANIMATION_DELAY = 0.05
 BASE_FRAME = 60
 
 class HardestGameSimulator(SimulatorBase):
+  History = History
   Move = Move
   ReplayMemory = ReplayMemory
   Sample = Sample

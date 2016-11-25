@@ -2,8 +2,8 @@ from __future__ import division
 from collections import deque
 import numpy as np
 
-class History(object):
-  HISTORY_SIZE = 4
+class HistoryBase(object):
+  HISTORY_SIZE = None
 
   def __init__(self):
     self.reset()

@@ -1,4 +1,3 @@
-from ...shared.history import History
 from ...shared.replay_memory_log import ReplayMemoryLog
 from ..net.deepq import DeepQ
 from abc import abstractmethod
@@ -13,7 +12,7 @@ class DeepQAgent(object):
     self.session = tf.Session()
     self.net = DeepQ(
       Simulator.__name__,
-      Simulator.Sample.IMAGE_DIMS + (History.HISTORY_SIZE,),
+      Simulator.Sample.IMAGE_DIMS + (Simulator.History.HISTORY_SIZE,),
       self.CONV_TEMPLATES,
       self.FC_TEMPLATES,
       len(Simulator.Move),
@@ -21,7 +20,7 @@ class DeepQAgent(object):
       restore=restore,
     )
     self.verbose = verbose
-    self.history = History()
+    self.history = Simulator.History()
     self.replay_memories = ReplayMemoryLog(Simulator.ReplayMemory, self.history)
 
   def reset_simulator(self):
@@ -35,7 +34,7 @@ class DeepQAgent(object):
     self.reset_simulator()
 
     self.history.reset()
-    for _ in range(History.HISTORY_SIZE):
+    for _ in range(self.Simulator.History.HISTORY_SIZE):
       self.history.add(self.simulator.sample(use_cached=False))
 
   @abstractmethod

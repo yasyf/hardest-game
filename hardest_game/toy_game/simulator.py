@@ -1,12 +1,14 @@
 from ..shared.simulator_base import SimulatorBase
 from level import Level
 from move import ToyGameMove as Move
+from history import ToyGameHistory as History
 from replay_memory import ToyGameReplayMemory as ReplayMemory
 from sample import ToyGameSample as Sample
 from state import ToyGameState as State
 
 class ToyGameSimulator(SimulatorBase):
   Move = Move
+  History = History
   ReplayMemory = ReplayMemory
   Sample = Sample
   State = State

@@ -20,7 +20,7 @@ class DeepQ(Base):
     self.session = session
     self.model_file = ensure_exists(os.path.join(model_dir, 'deepq'))
 
-    self._create_graph(input_dims)
+    self._create_graph()
 
     log_dir = static_dir('tf', 'logs', str(int(time.time())))
     self.writer = tf.train.SummaryWriter(log_dir, self.session.graph)
@@ -37,18 +37,11 @@ class DeepQ(Base):
       init = tf.initialize_all_variables()
       self.session.run(init)
 
-  def _create_graph(self, input_dims):
+  def _create_graph(self):
     self.layers = []
 
-    (height, width, ninput) = input_dims
     with tf.variable_scope('deepq'):
-      self.data = tf.placeholder(tf.float32, [None, height, width, ninput], 'data')
-      self.actions = tf.placeholder(tf.int32, [None], 'actions')
-      self.labels = tf.placeholder(tf.float32, [None], 'labels')
-      self.epsilon = tf.placeholder(tf.float32, [], 'epsilon')
-
-      self.layers.append(self.data)
-
+      self._create_input()
       self._create_conv_layers()
       self._create_fc_layers()
       self._add_out()
@@ -56,6 +49,16 @@ class DeepQ(Base):
       self._add_optimizer()
       self._add_summaries()
       self.saver = tf.train.Saver(max_to_keep=5, keep_checkpoint_every_n_hours=2)
+
+  def _create_input(self):
+    (height, width, ninput) = self.input_dims
+    with tf.variable_scope('input'):
+      self.data = tf.placeholder(tf.float32, [None, height, width, ninput], 'data')
+      self.actions = tf.placeholder(tf.int32, [None], 'actions')
+      self.labels = tf.placeholder(tf.float32, [None], 'labels')
+      self.epsilon = tf.placeholder(tf.float32, [], 'epsilon')
+
+    self.layers.append(self.data)
 
   def _create_conv_layers(self):
     input_ = self.layers[-1]
@@ -77,7 +80,7 @@ class DeepQ(Base):
       self.best_action = tf.argmax(self.out, dimension=1)
       self.best_reward = tf.reduce_max(self.out, reduction_indices=1)
 
-      self.layers.append(self.out)
+    self.layers.append(self.out)
 
   def _add_loss(self):
     with tf.variable_scope('loss'):
@@ -94,17 +97,18 @@ class DeepQ(Base):
       self.optimize = optimizer.apply_gradients(self.gradients, global_step=self.global_step)
 
   def _add_summaries(self):
-    tf.scalar_summary('loss', self.loss)
-    tf.scalar_summary('epsilon', self.epsilon)
+    with tf.variable_scope('summary'):
+      tf.scalar_summary('loss', self.loss)
+      tf.scalar_summary('epsilon', self.epsilon)
 
-    averaged_out = tf.reduce_mean(self.out, reduction_indices=0)
-    for i in range(self.nactions):
-      tf.histogram_summary('q[{}]'.format(i), averaged_out[i])
+      averaged_out = tf.reduce_mean(self.out, reduction_indices=0)
+      for i in range(self.nactions):
+        tf.histogram_summary('q[{}]'.format(i), averaged_out[i])
 
-    for grad, var in self.gradients:
-      tf.histogram_summary('{}/gradient'.format(var.name), grad)
+      for grad, var in self.gradients:
+        tf.histogram_summary('{}/gradient'.format(var.name), grad)
 
-    self.summaries = tf.merge_all_summaries()
+      self.summaries = tf.merge_all_summaries()
 
   def save(self):
     self.saver.save(self.session, self.model_file, global_step=self.global_step)
