@@ -6,15 +6,16 @@ import tensorflow as tf
 class DeepQAgent(object):
   CONV_TEMPLATES = [('c1', 16, 8, 4), ('c2', 32, 4, 2)] # [(name, nout, size, stride)]
   FC_TEMPLATES = [('f1', 256)] # [(name, nout)]
+  NOIMAGE_FC_TEMPLATES = [('f1', 256), ('f2', 256)] # [(name, nout)]
 
   def __init__(self, Simulator, verbose=False, restore=False):
     self.Simulator = Simulator
     self.session = tf.Session()
     self.net = DeepQ(
       Simulator.__name__,
-      Simulator.Sample.IMAGE_DIMS + (Simulator.History.HISTORY_SIZE,),
+      Simulator.History.INPUT_DIMS,
       self.CONV_TEMPLATES if len(Simulator.Sample.IMAGE_DIMS) > 1 else [],
-      self.FC_TEMPLATES,
+      self.FC_TEMPLATES if len(Simulator.Sample.IMAGE_DIMS) > 1 else self.NOIMAGE_FC_TEMPLATES,
       len(Simulator.Move),
       self.session,
       restore=restore,

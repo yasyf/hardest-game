@@ -4,6 +4,7 @@ import numpy as np
 
 class HistoryBase(object):
   HISTORY_SIZE = None
+  INPUT_DIMS = None
 
   def __init__(self):
     self.reset()
