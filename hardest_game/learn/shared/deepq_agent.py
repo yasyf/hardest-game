@@ -36,6 +36,7 @@ class DeepQAgent(object):
 
     self.history.reset()
     for _ in range(self.Simulator.History.HISTORY_SIZE):
+      self.simulator.make_move(self.Simulator.Move['stay'], raise_on_death=True)
       self.history.add(self.simulator.sample(use_cached=False))
 
   @abstractmethod
