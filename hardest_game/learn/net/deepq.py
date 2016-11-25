@@ -38,12 +38,17 @@ class DeepQ(Base):
       self.session.run(init)
 
   def _create_graph(self, input_dims):
+    self.layers = []
+
     (height, width, ninput) = input_dims
     with tf.variable_scope('deepq'):
       self.data = tf.placeholder(tf.float32, [None, height, width, ninput], 'data')
       self.actions = tf.placeholder(tf.int32, [None], 'actions')
       self.labels = tf.placeholder(tf.float32, [None], 'labels')
       self.epsilon = tf.placeholder(tf.float32, [], 'epsilon')
+
+      self.layers.append(self.data)
+
       self._create_conv_layers()
       self._create_fc_layers()
       self._add_out()
@@ -53,26 +58,26 @@ class DeepQ(Base):
       self.saver = tf.train.Saver(max_to_keep=5, keep_checkpoint_every_n_hours=2)
 
   def _create_conv_layers(self):
-    self.conv_layers = []
-    input_ = self.data
+    input_ = self.layers[-1]
     for (name, n, size, stride) in self.conv_templates:
       out = Conv2D(name, input_, n, [size, size], stride).to_tf()
-      self.conv_layers.append(out)
+      self.layers.append(out)
       input_ = out
 
   def _create_fc_layers(self):
-    self.fc_layers = []
-    input_ = tf.contrib.layers.flatten(self.conv_layers[-1])
+    input_ = tf.contrib.layers.flatten(self.layers[-1])
     for (name, n) in self.fc_templates:
       out = FC(name, input_, n).to_tf()
-      self.fc_layers.append(out)
+      self.layers.append(out)
       input_ = out
 
   def _add_out(self):
     with tf.variable_scope('output'):
-      self.out = FC('out', self.fc_layers[-1], self.nactions, activation_fn=None).to_tf()
+      self.out = FC('out', self.layers[-1], self.nactions, activation_fn=None).to_tf()
       self.best_action = tf.argmax(self.out, dimension=1)
       self.best_reward = tf.reduce_max(self.out, reduction_indices=1)
+
+      self.layers.append(self.out)
 
   def _add_loss(self):
     with tf.variable_scope('loss'):
