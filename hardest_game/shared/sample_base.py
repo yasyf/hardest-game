@@ -7,10 +7,14 @@ class SampleBase(Pickleable):
 
   def __init__(self, state, image):
     self.state = state
-    self.image = self.preprocess(image)
+    self._image = self.preprocess(image)
+
+  @property
+  def image(self):
+    return self._image
 
   def show(self, ion=False):
-    plt.imshow(self.image, cmap=plt.get_cmap('gray'))
+    plt.imshow(self._image, cmap=plt.get_cmap('gray'))
     if ion:
       plt.draw()
     else:

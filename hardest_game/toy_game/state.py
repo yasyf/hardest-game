@@ -46,7 +46,7 @@ class ToyGameState(StateBase):
     return self.MAX_X - self.x
 
   def feature_vector(self):
-    x = np.zeros(self.__class__.MAX_X)
+    x = np.zeros(NSQUARES)
     x[self.x] = 1
     if self.enemy_shown():
       x[self.level.enemy_loc] = (x[self.level.enemy_loc] + 1) * -1

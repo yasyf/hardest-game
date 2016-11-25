@@ -51,9 +51,8 @@ class DeepQ(Base):
       self.saver = tf.train.Saver(max_to_keep=5, keep_checkpoint_every_n_hours=2)
 
   def _create_input(self):
-    (height, width, ninput) = self.input_dims
     with tf.variable_scope('input'):
-      self.data = tf.placeholder(tf.float32, [None, height, width, ninput], 'data')
+      self.data = tf.placeholder(tf.float32, [None] + list(self.input_dims), 'data')
       self.actions = tf.placeholder(tf.int32, [None], 'actions')
       self.labels = tf.placeholder(tf.float32, [None], 'labels')
       self.epsilon = tf.placeholder(tf.float32, [], 'epsilon')
