@@ -16,9 +16,10 @@ class ToyGameSimulator(SimulatorBase):
   def __init__(self, level=None, *args, **kwargs):
     kwargs['name'] = kwargs.get('name', self.__class__.__name__)
     super(ToyGameSimulator, self).__init__(*args, **kwargs)
-    self.level = level or Level.default()
+    self._level = level
 
   def _start(self):
+    self.level = self._level or Level.default()
     self.alive = True
     self._x = 0
     self.frame = 0
