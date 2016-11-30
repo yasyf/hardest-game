@@ -6,6 +6,8 @@ import tensorflow as tf
 from ...shared.util import static_dir, ensure_exists
 import os
 
+DELTA_MIN = -10
+DELTA_MAX = 10
 WRITE_SUMMARY_EVERY = 100
 
 class DeepQ(Base):
@@ -84,7 +86,7 @@ class DeepQ(Base):
     with tf.variable_scope('loss'):
       actions_one_hot = tf.one_hot(self.actions, self.nactions, name='actions_one_hot')
       q_estimate = tf.reduce_sum(self.out * actions_one_hot, reduction_indices=1, name='q_estimate')
-      delta = tf.sub(self.labels, q_estimate, name='delta')
+      delta = tf.clip_by_value(self.labels - q_estimate, DELTA_MIN, DELTA_MAX, name='delta')
       self.loss = tf.reduce_mean(tf.square(delta), name='loss')
 
   def _add_optimizer(self):
