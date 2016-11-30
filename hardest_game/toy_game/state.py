@@ -3,12 +3,12 @@ from ..shared.util import WHITE, BLACK
 from PIL import Image, ImageDraw
 import numpy as np
 
-WIDTH = 80
-HEIGHT = 20
 NSQUARES = 4
 
 class ToyGameState(StateBase):
   MAX_X = NSQUARES - 1
+  WIDTH = 80
+  HEIGHT = 20
   IMAGE_DIMS = (WIDTH, HEIGHT)
 
   def __init__(self, x, frame, alive, level, moves):
@@ -25,21 +25,40 @@ class ToyGameState(StateBase):
   def enemy_shown(self):
     return self.frame % self.level.enemy_phase == 0
 
-  @staticmethod
-  def _bounding_box(x, width, height):
-    x_center = (WIDTH / NSQUARES) * (x + 0.5)
-    y_center = HEIGHT / 2
+  @classmethod
+  def _bounding_box(cls, x, width, height):
+    x_center = (cls.WIDTH / NSQUARES) * (x + 0.5)
+    y_center = cls.HEIGHT / 2
     return [(x_center - width/2, y_center - height/2), (x_center + width/2, y_center + height/2)]
 
-  def draw(self):
-    img = Image.new('RGB', self.__class__.IMAGE_DIMS, (WHITE,) * 3)
+  @classmethod
+  def _new_draw(cls):
+    img = Image.new('RGB', cls.IMAGE_DIMS, (WHITE,) * 3)
     d = ImageDraw.Draw(img)
-    d.rectangle([(0, 0), (WIDTH - 1, HEIGHT - 1)], outline=BLACK)
+    return img, d
+
+  @classmethod
+  def _draw_rectangle(cls, d):
+    d.rectangle([(0, 0), (cls.WIDTH - 1, cls.HEIGHT - 1)], outline=BLACK)
+
+  @classmethod
+  def _draw_lines(cls, d):
     for i in range(NSQUARES):
-      d.line([((WIDTH / NSQUARES) * i, 0), ((WIDTH / NSQUARES) * i, HEIGHT - 1)], fill=BLACK)
+      d.line([((cls.WIDTH / NSQUARES) * i, 0), ((cls.WIDTH / NSQUARES) * i, cls.HEIGHT - 1)], fill=BLACK)
+
+  def _draw_player(self, d):
     d.rectangle(self._bounding_box(self.x, 10, 10), fill='red', outline='red')
+
+  def _draw_enemy(self, d):
+    d.rectangle(self._bounding_box(self.level.enemy_loc, 5, 5), fill='blue', outline='blue')
+
+  def draw(self):
+    img, d = self._new_draw()
+    self._draw_rectangle(d)
+    self._draw_lines(d)
+    self._draw_player(d)
     if self.enemy_shown():
-      d.rectangle(self._bounding_box(self.level.enemy_loc, 5, 5), fill='blue', outline='blue')
+      self._draw_enemy(d)
     return img
 
   def distance_to_end(self):

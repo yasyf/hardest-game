@@ -9,3 +9,4 @@
 - Time to try with images again, this time with a history size of 2. Will train for way more than ~100k episodes, which is what we tried last time. Didn't give us very good results even after ~600k episodes, also noticed that the loss never changes.
 - Try to clip the gradient deltas at 1 and -1, also didn't give good results.
 - Now unclipped, still just learns to always go right after millions of episodes.
+- Back to state vectors in our toy game, but now 2D
