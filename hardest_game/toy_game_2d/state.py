@@ -15,7 +15,7 @@ class ToyGame2DState(ToyGameState):
     self.y = y
 
   def is_win(self):
-    return super(self, ToyGame2DState).is_win() and self.y == self.MAX_Y
+    return super(ToyGame2DState, self).is_win() and self.y == self.MAX_Y
 
   @classmethod
   def _bounding_box(cls, x, y, width, height):
@@ -44,4 +44,4 @@ class ToyGame2DState(ToyGameState):
     if self.enemy_shown():
       x[self.level.enemy_loc[1], self.level.enemy_loc[0]] += 1
       x[self.level.enemy_loc[1], self.level.enemy_loc[0]] *= -1
-    return x
+    return x.flatten()

@@ -1,4 +1,5 @@
 from ..toy_game.simulator import ToyGameSimulator
+from level import Level
 from move import ToyGame2DMove as Move
 from history import ToyGame2DHistory as History
 from replay_memory import ToyGame2DReplayMemory as ReplayMemory
@@ -14,6 +15,7 @@ class ToyGame2DSimulator(ToyGameSimulator):
 
   def _start(self):
     super(ToyGame2DSimulator, self)._start()
+    self.level = self._level or Level.default()
     self._y = 0
 
   @property
