@@ -109,6 +109,10 @@ class DeepQ(Base):
       tf.scalar_summary('epsilon', self.epsilon)
       tf.scalar_summary('terminal_reward', ema.average(self.terminal_reward))
 
+      batch_best = tf.argmax(self.best_reward, dimension=0)
+      tf.scalar_summary('best_reward', tf.gather(self.best_reward, batch_best))
+      tf.histogram_summary('best_action', tf.gather(self.best_action, batch_best))
+
       averaged_out = tf.reduce_mean(self.out, reduction_indices=0)
       for i in range(self.nactions):
         tf.histogram_summary('q[{}]'.format(i), averaged_out[i])
