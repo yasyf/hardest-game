@@ -101,8 +101,13 @@ class DeepQ(Base):
 
   def _add_summaries(self):
     with tf.variable_scope('summary'):
+      self.terminal_reward = tf.Variable(0., name='terminal_reward', trainable=False)
+      ema = tf.train.ExponentialMovingAverage(decay=0.9)
+      self.maintain_averages_op = ema.apply([self.terminal_reward])
+
       tf.scalar_summary('loss', self.loss)
       tf.scalar_summary('epsilon', self.epsilon)
+      tf.scalar_summary('terminal_reward', ema.average(self.terminal_reward))
 
       averaged_out = tf.reduce_mean(self.out, reduction_indices=0)
       for i in range(self.nactions):
@@ -115,6 +120,11 @@ class DeepQ(Base):
 
   def save(self):
     self.saver.save(self.session, self.model_file, global_step=self.global_step)
+
+  def set_terminal_reward(self, reward):
+    with tf.control_dependencies([self.terminal_reward.assign(reward)]):
+      op = tf.group(self.maintain_averages_op)
+    self.session.run(op)
 
   def feed_dict(self, data, actions, labels, extra_feed_dict=None):
     feed_dict = {
