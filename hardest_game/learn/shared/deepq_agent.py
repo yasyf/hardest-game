@@ -8,7 +8,7 @@ class DeepQAgent(object):
   FC_TEMPLATES = [('f1', 256)] # [(name, nout)]
   NOIMAGE_FC_TEMPLATES = [('f1', 256), ('f2', 256)] # [(name, nout)]
 
-  def __init__(self, Simulator, verbose=False, restore=False):
+  def __init__(self, Simulator, verbose=False, restore=False, log=True):
     self.Simulator = Simulator
     self.session = tf.Session()
     self.net = DeepQ(
@@ -19,6 +19,7 @@ class DeepQAgent(object):
       len(Simulator.Move),
       self.session,
       restore=restore,
+      log=log,
     )
     self.verbose = verbose
     self.history = Simulator.History()

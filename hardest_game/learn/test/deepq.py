@@ -5,7 +5,7 @@ import time
 
 class DeepQTester(DeepQAgent):
   def __init__(self, Simulator, verbose=True):
-    super(DeepQTester, self).__init__(Simulator, verbose=verbose, restore=True)
+    super(DeepQTester, self).__init__(Simulator, verbose=verbose, restore=True, log=False)
 
   def next_action(self):
     return self.net.eval_best_action(self.history.data)

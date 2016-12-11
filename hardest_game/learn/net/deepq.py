@@ -11,7 +11,7 @@ DELTA_MAX = 10
 WRITE_SUMMARY_EVERY = 100
 
 class DeepQ(Base):
-  def __init__(self, name, input_dims, conv_templates, fc_templates, nactions, session, restore=False):
+  def __init__(self, name, input_dims, conv_templates, fc_templates, nactions, session, restore=False, log=True):
     model_dir = static_dir('tf', 'models', name)
 
     self.input_dims = input_dims
@@ -23,7 +23,10 @@ class DeepQ(Base):
 
     self._create_graph()
 
-    log_dir = static_dir('tf', 'logs', str(int(time.time())))
+    if log:
+      log_dir = static_dir('tf', 'logs', str(int(time.time())))
+    else:
+      log_dir = os.devnull
     self.writer = tf.train.SummaryWriter(log_dir, self.session.graph)
 
     self._restore_or_init_vars(model_dir, restore)
