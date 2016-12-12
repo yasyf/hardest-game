@@ -45,12 +45,13 @@ class DeepQ(Base):
     self.layers = []
 
     with tf.variable_scope('deepq'):
-      self._create_input()
-      self._create_conv_layers()
-      self._create_fc_layers()
-      self._add_out()
-      self._add_loss()
-      self._add_optimizer()
+      with tf.device('/gpu:0'):
+        self._create_input()
+        self._create_conv_layers()
+        self._create_fc_layers()
+        self._add_out()
+        self._add_loss()
+        self._add_optimizer()
       self._add_summaries()
       self.saver = tf.train.Saver(max_to_keep=25, keep_checkpoint_every_n_hours=1)
 
