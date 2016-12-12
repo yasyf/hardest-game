@@ -9,7 +9,7 @@ class ToyGameReplayMemory(ReplayMemoryBase):
     if not self.next_state.alive:
       return -REWARD
 
-    if self.next_state.is_win():
+    if self.is_win:
       return REWARD
 
     if not self.did_move():
@@ -18,7 +18,7 @@ class ToyGameReplayMemory(ReplayMemoryBase):
     return self.distance_improved()
 
   def _calc_is_terminal(self):
-    return (not self.next_state.alive) or self.next_state.is_win()
+    return (not self.next_state.alive) or self.is_win
 
   def did_move(self):
     return self.action != Move.stay and (self.next_state.x != self.state.x)

@@ -64,7 +64,7 @@ class DeepQTrainer(DeepQAgent):
       self.net.train(data, actions, labels, feed_dict)
 
     if memory.is_terminal:
-      self.net.set_terminal_reward(memory.reward)
+      self.net.set_terminal_reward(memory.reward, memory.is_win)
       print('Final Reward: {}'.format(memory.reward))
       raise StopIteration
 

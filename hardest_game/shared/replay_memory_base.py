@@ -22,3 +22,11 @@ class ReplayMemoryBase(object):
   @abstractmethod
   def _calc_is_terminal(self):
     raise NotImplementedError
+
+  @property
+  def is_win(self):
+    return self.next_state.is_win()
+
+  @property
+  def is_death(self):
+    return self.next_state.is_death()

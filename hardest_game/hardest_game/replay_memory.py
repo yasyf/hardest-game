@@ -7,9 +7,9 @@ MOVEMENT_REWARD = 0.1
 
 class HardestGameReplayMemory(ReplayMemoryBase):
   def _calc_reward(self):
-    if self.next_state.is_death():
+    if self.is_death:
       return -ENDGAME_REWARD
-    if self.next_state.is_win():
+    if self.is_win:
       return ENDGAME_REWARD
 
     did_move = self.did_move()
@@ -27,7 +27,7 @@ class HardestGameReplayMemory(ReplayMemoryBase):
     )
 
   def _calc_is_terminal(self):
-    return self.next_state.is_death() or self.next_state.is_win()
+    return self.is_death or self.is_win
 
   def log_distance_reduced(self):
     return (self.state.log_distance_to_end() - self.next_state.log_distance_to_end()) / 10.
