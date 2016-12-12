@@ -1,9 +1,8 @@
 from __future__ import print_function, division
 from ..shared.deepq_agent import DeepQAgent
-import matplotlib.pyplot as plt
-import time
+from test_agent_mixin import TestAgentMixin
 
-class DeepQTester(DeepQAgent):
+class DeepQTester(DeepQAgent, TestAgentMixin):
   def __init__(self, Simulator, verbose=True):
     super(DeepQTester, self).__init__(Simulator, verbose=verbose, restore=True, log=False)
 
@@ -15,13 +14,7 @@ class DeepQTester(DeepQAgent):
     if memory.is_terminal:
       raise StopIteration
 
-  def _show(self):
-    time.sleep(0.5)
-    self.history.get().show(ion=True)
-    time.sleep(0.5)
-
   def test(self):
-    plt.ion()
     self.reset()
 
     self._show()
