@@ -23,7 +23,7 @@ class ToyGameState(StateBase):
     return self.alive and self.x == self.MAX_X
 
   def enemy_shown(self):
-    return self.frame % self.level.enemy_phase == 0
+    return self.frame % (2*self.level.enemy_phase) >= self.level.enemy_phase
 
   @classmethod
   def _bounding_box(cls, x, width, height):

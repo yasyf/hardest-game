@@ -6,7 +6,7 @@ class ToyGame2DHardState(ToyGame2DState):
     return True
 
   def enemy_at_loc(self, pos):
-    return pos in self.level.enemy_phase and self.frame % self.level.enemy_phase[pos] == 0
+    return pos in self.level.enemy_phase and self.frame % (2*self.level.enemy_phase[pos]) >= self.level.enemy_phase[pos]
 
   def _draw_enemy(self, d):
     for loc in self.level.enemy_phase:
