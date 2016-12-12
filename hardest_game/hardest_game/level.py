@@ -1,4 +1,4 @@
-from pickleable import Pickleable
+from ..shared.pickleable import Pickleable
 from area import Area
 
 class Level(Pickleable):
