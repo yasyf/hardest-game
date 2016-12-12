@@ -52,7 +52,7 @@ class DeepQ(Base):
       self._add_loss()
       self._add_optimizer()
       self._add_summaries()
-      self.saver = tf.train.Saver(max_to_keep=5, keep_checkpoint_every_n_hours=2)
+      self.saver = tf.train.Saver(max_to_keep=25, keep_checkpoint_every_n_hours=1)
 
   def _create_input(self):
     with tf.variable_scope('input'):

@@ -1,13 +1,19 @@
 from __future__ import print_function, division
 from ..shared.agent import Agent
 from test_agent_mixin import TestAgentMixin
-import copy
+import copy, random
 import numpy as np
 
 RUNS = 1000
 
 class GreedyTester(Agent, TestAgentMixin):
+  EPSILON = 0.05
+  NAME = 'Greedy'
+
   def next_action(self):
+    if np.random.random() < self.EPSILON:
+      return random.choice(list(self.Simulator.Move))
+
     moves = {}
     for move in self.Simulator.Move:
       simulator = self.Simulator(verbose=False, moves=self.simulator.moves[:-1], level=self.simulator.level)
@@ -37,5 +43,5 @@ class GreedyTester(Agent, TestAgentMixin):
           break
       runs[i] = memory.is_win
 
-    print('Greedy Wins: {}%'.format(np.mean(runs) * 100))
+    print('{} Wins: {}%'.format(self.NAME, np.mean(runs) * 100))
 

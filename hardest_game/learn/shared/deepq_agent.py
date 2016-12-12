@@ -9,7 +9,7 @@ class DeepQAgent(Agent):
 
   def __init__(self, Simulator, verbose=False, restore=False, log=True):
     super(DeepQAgent, self).__init__(Simulator, verbose=verbose)
-    self.session = tf.Session()
+    self.session = tf.Session(config=tf.ConfigProto(log_device_placement=True))
     self.net = DeepQ(
       Simulator.__name__,
       Simulator.History.INPUT_DIMS,
