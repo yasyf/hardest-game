@@ -34,7 +34,7 @@ class ToyGame2DSimulator(ToyGameSimulator):
 
   @property
   def state(self):
-    return State(self.x, self.y, self.frame, self.alive, self.level, self.moves)
+    return self.__class__.State(self.x, self.y, self.frame, self.alive, self.level, self.moves)
 
   def _check_collision(self):
     if not self.alive:
