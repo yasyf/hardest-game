@@ -2,7 +2,7 @@ from __future__ import division
 from collections import deque
 import random
 
-REPLAY_MEMORY_SIZE = 1e6
+REPLAY_MEMORY_SIZE = 1e5
 
 class ReplayMemoryLog(object):
   MINIBATCH_SIZE = 32

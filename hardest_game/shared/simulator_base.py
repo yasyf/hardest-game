@@ -87,4 +87,4 @@ class SimulatorBase(object):
     if use_cached:
       return self.__class__.Sample.load_or_gen(self.state.id(), self)
     else:
-      return self.__class__.Sample.gen(self.state.id(), self)
+      return self.__class__.Sample.gen(None, self)
