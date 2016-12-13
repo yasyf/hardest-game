@@ -18,6 +18,6 @@ def run_random(klass):
   tester.run_tests(10)
 
 if __name__ == '__main__':
-  run_deep(ToyGame2DSimulator)
+  run_deep(ToyGame2DHardSimulator)
   # run_greedy(ToyGame2DHardSimulator)
   # run_random(ToyGame2DHardSimulator)

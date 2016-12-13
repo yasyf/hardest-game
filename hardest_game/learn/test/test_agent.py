@@ -11,7 +11,7 @@ class TestAgent(Agent):
   def _show(self):
     plt.ion()
     time.sleep(0.5)
-    self.history.get().show(ion=True)
+    self.simulator.capture().show()
     time.sleep(0.5)
 
   def _step(self):
@@ -24,7 +24,7 @@ class TestAgent(Agent):
 
     for i in trange(RUNS):
       self.reset()
-      for _ in trange(NUM_STEPS):
+      for _ in xrange(NUM_STEPS):
         memory = self._step()
         if memory:
           runs[i] = memory.is_win
