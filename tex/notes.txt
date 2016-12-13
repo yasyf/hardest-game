@@ -10,4 +10,6 @@
 - Try to clip the gradient deltas at 1 and -1, also didn't give good results.
 - Now unclipped, still just learns to always go right after millions of episodes.
 - Back to state vectors in our toy game, but now 2D. After training for 900k episodes, we win about 90% of the games.
-- model random to compare, add rolling # of wins
+- 10% on random, 44% on greedy for TG2D-H
+- FC 128 x2 gives peak of 55% on TG2D-H, average around 33%
+- try with different architechture...

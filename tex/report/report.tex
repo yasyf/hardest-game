@@ -12,6 +12,7 @@
 \DeclareMathOperator*{\argmax}{arg\,max}
 
 \setlength{\parskip}{1em}
+\setlength{\parindent}{0em}
 
 \graphicspath{ {../../static/img/}}
 
@@ -35,9 +36,11 @@ The World's Hardest Game~\cite{game} (TWHG) is a widely-available online Flash g
 
 Deep learning, combined with classic reinforcement learning techniques, allows one to learn a action-selection policy on complicated, long games that have significant delays between action and reward. Furthermore, a CNN is capable of taking pixel inputs from frames of a game simulator and learning a representation of the game state from them. Thus, it is theoretically possible to have a game-winning strategy learned simply by ``playing'' a game over and over, and observing the results.
 
-The original goal of this project was to use the Deep Q-learning with Experience Replay technique pioneered by DeepMind~\cite{deepmind} to train a model that was capable of beating TWHG, surpassing the performance of even the most skilled human player. After weeks of training, it became clear that acheiving this is beyond the scope of the project, with the best models barely managing to navigate the player out of the starting area. Therefore, I instead explored several related ``toy'' games (all with a similar premise), testing the techniques and hyperparameters laid out in the DeepMind paper against two baselines: a random model, and a $\epsilon$-greedy model.
+The original goal of this paper was to use the Deep Q-learning with Experience Replay technique pioneered by DeepMind~\cite{deepmind} to train a model that was capable of beating TWHG, surpassing the performance of even the most skilled human player. After weeks of training, it became clear that acheiving this is beyond the scope of the paper, with the best models barely managing to navigate the player out of the starting area. Therefore, we instead explored several related ``toy'' games (all with a similar premise), testing the techniques and hyperparameters laid out in the DeepMind paper against two baselines: a random model, and a $\epsilon$-greedy model.
 
-I tested my architechture and model against increasingly complicated toy games, attempting learning both with pixel inputs as well as by directly feeding in a representative state vector. The results show that training with image inputs takes prohibitively long, where as directly feeding in state vectors results in a model that outperforms both the baselines within days. Furthermore, the learned models take actions that are intuitive to a human player, with no seeding required.
+We tested my architechture and model against increasingly complicated toy games, attempting learning both with pixel inputs as well as by directly feeding in a representative state vector. The results show that training with image inputs takes prohibitively long, where as directly feeding in state vectors results in a model that outperforms both the baselines within days. Furthermore, the learned models take actions that are intuitive to a human player, with no seeding required.
+
+All the referenced implementation code for this paper can be found at \url{https://github.com/yasyf/hardest-game}.
 
 \section{Background}
 
@@ -55,13 +58,13 @@ Gradient descent technques were used to optimize the parameters of the network. 
 
 \subsection{Simulators}
 
-As a Flash-based game, TWHG is easy to simulate. Using headless browser wrappers such as Selenium, it is possible to launch instances of Google Chrome and load the SWF containing the game's code without user intervention. Simulating user moves and extracting state is done through the bare-bones JavaScript API exposed by the Flash runtime~\cite{flashjs}. Internal state can be read using the \texttt{TGetProperty} and \texttt{GetVariable} methods, and written using the corresponding \texttt{Set*} methods. Part of the contribution of this project is a generic Python-based simulator~\cite{simulator} which can interact with Flash-based games and report observable state, as well as capture frames for later processing.
+As a Flash-based game, TWHG is easy to simulate. Using headless browser wrappers such as Selenium, it is possible to launch instances of Google Chrome and load the SWF containing the game's code without user intervention. Simulating user moves and extracting state is done through the bare-bones JavaScript APwe exposed by the Flash runtime~\cite{flashjs}. Internal state can be read using the \texttt{TGetProperty} and \texttt{GetVariable} methods, and written using the corresponding \texttt{Set*} methods. Part of the contribution of this paper is a generic Python-based simulator~\cite{simulator} which can interact with Flash-based games and report observable state, as well as capture frames for later processing.
 
 \section{Methods}
 
 \subsection{Games}
 
-In addition to TWHG, described above, I implemented several simple games of varying difficulty, in order to test the efficacy of the techniques and models presented in this project within a limited span of time.
+In addition to TWHG, described above, we implemented several simple games of varying difficulty, in order to test the efficacy of the techniques and models presented in this paper within a limited span of time.
 
 \subsubsection{TG1D}
 
@@ -86,14 +89,14 @@ TG2D-H is the exact same game as TG2D, but with multiple enemies. Each enemy is 
 
 \subsection{Learning}
 
-To implement the neural net architechture for this model, I used the popular TensorFlow library. Simple abstractions were build around 2D-convolutional and fully-connected layers, which were strung together to test various architechtures. The output of the net represented the Q-estimate for each action, with the best action defined as $\argmax_{a \in \mathcal{A}} Q_a$. The loss function used for optimization is the mean-squared-error of the Q-estimate predicted for a given action $a$ at time $t$, and the ``realized'' Q-value, which is the known reward for $a$ at $t$ added to the discounted Q-estimate of the best action at the state $t+1$, given $a$ was made at $t$.
+To implement the neural net architechture for this model, we used the popular TensorFlow library. Simple abstractions were build around 2D-convolutional and fully-connected layers, which were strung together to test various architechtures. The output of the net represented the Q-estimate for each action, with the best action defined as $\argmax_{a \in \mathcal{A}} Q(t, a)$. The loss function used for optimization is the mean-squared-error of the Q-estimate predicted for a given action $a$ at time $t$, and the ``realized'' Q-value, which is the known reward for $a$ at $t$ added to the discounted Q-estimate of the best action at the state $t+1$, given $a$ was made at $t$.
 
-\[error formula here\]
+\[\ell = \frac{1}{N} \sum_{i=1}^{N} \left[\texttt{clip}\left(Q\left(t, a_t\right) - \left[r_{t,a}  + \gamma \max_{a \in \mathcal{A}} Q\left(t+1, a\right)\right]\right)\right]^2\]
 
 The difference in Q-estimate for $t$ and ``realized'' Q-value is clipped to be in the range $[\delta_{-}, \delta_{+}]$, as reccomended by the DeepMind paper, in order to limit the scale of the error gradient. Several values where tried for the bounds of this range. Finally, the Adam optimizer was used to optimize this loss function given the game samples.
 
-Samples were provided using the Experience Replay technique described in the DeepMind paper, with an $\epsilon$-greedy policy for selecting optimal moves (with $\epsilon$ controlling how often random moves were made, in order to force exploration, as opposed to the move suggested by the current Q-estimates).
-
+Samples were provided using the Experience Replay technique described in the DeepMind paper, with an $\epsilon$-greedy policy for selecting optimal moves (with $\epsilon$ controlling how often random moves were made, in order to force exploration, as opposed to the move suggested by the current Q-estimates). The replay memory of each episode (from which minibatch training points are sampled) is first seeded by filling the history $H$ (which holds the stacked inputs to the model for the given timestep) with $|H|$ frames of the player making the ``stay'' move. This has the nice property of exposing the model to the motion patterns of enemies, which aids in predicting where enemies will appear when the player starts moving.
+.
 When feeding in frame images, the architechture used was exactly as described in the DeepMind paper~\cite{deepmind}, with either 3 or 5 output nodes, depending on the game. When feeding in state vectors, we instead use 2 fully-connected hidden layers with 256 ReLU nodes each. Further work could include testing out alternative architechtures, particularly in the latter case.
 
 \subsection{Hyperparameters}
@@ -117,6 +120,16 @@ A $\gamma$ value of...
 
 \subsection{Toy Games}
 
+\subsubsection{TG1D}
+
+- loses less than 10 out of every 100 (91.5\% accuracy), learns to move right always unless it has seen enemy there, then stops for 1 turn
+
+\subsubsection{TG2D}
+
+\subsubsection{TG2D-H}
+
+- averages 33.4\%, with one training resulting in a model that acheived 55\% after 500k episodes.
+
 \subsection{The World's Hardest Game}
 
 - not great
@@ -124,6 +137,11 @@ A $\gamma$ value of...
 \section{Discussion}
 
 \subsection{Challenges}
+
+- figuring out flash ``registers''
+- training time, particularly with flash simulator, solved with pool of simulators
+- balance between reward function being too specific and not allowing for unintuitive exploration, and being conservative enough that player just gets stuck
+- initialization
 
 \section{Conclusion}
 
