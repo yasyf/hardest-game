@@ -56,7 +56,7 @@ Our next baseline was a ϵ-greedy model that sampled a uniformly random action w
 
 ## Results
 
-I ran the best model over several training runs for each game, and present the results below. For any game more complex than the basic 1-D toy game, I see that our Deep Q-learning model outperforms the naive ϵ-greedy model.
+I ran the best model over several training runs for each game, and present the results below. For any game more complex than the basic 1-D toy game, our Deep Q-learning model outperforms the naive ϵ-greedy model.
 
 For the simple TG1D, I hypothesize that such a simple game can effectively be mastered with a greedy strategy, and that our function approximator could not match these results given the limited training time.
 
