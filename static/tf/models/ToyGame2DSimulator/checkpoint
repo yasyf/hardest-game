@@ -1,0 +1,4 @@
+model_checkpoint_path: "/Users/yasyf/Dropbox (MIT)/Fall 2016/6.867/project/static/tf/models/ToyGame2DSimulator/deepq-221216"
+all_model_checkpoint_paths: "/Users/yasyf/Dropbox (MIT)/Fall 2016/6.867/project/static/tf/models/ToyGame2DSimulator/deepq-28"
+all_model_checkpoint_paths: "/Users/yasyf/Dropbox (MIT)/Fall 2016/6.867/project/static/tf/models/ToyGame2DSimulator/deepq-139497"
+all_model_checkpoint_paths: "/Users/yasyf/Dropbox (MIT)/Fall 2016/6.867/project/static/tf/models/ToyGame2DSimulator/deepq-221216"

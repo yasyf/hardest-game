@@ -1,0 +1,7 @@
+model_checkpoint_path: "/Users/yasyf/Dropbox (MIT)/Fall 2016/6.867/project/static/tf/models/ToyGameSimulator/deepq-144068"
+all_model_checkpoint_paths: "/Users/yasyf/Dropbox (MIT)/Fall 2016/6.867/project/static/tf/models/ToyGameSimulator/deepq-5"
+all_model_checkpoint_paths: "/Users/yasyf/Dropbox (MIT)/Fall 2016/6.867/project/static/tf/models/ToyGameSimulator/deepq-58575"
+all_model_checkpoint_paths: "/Users/yasyf/Dropbox (MIT)/Fall 2016/6.867/project/static/tf/models/ToyGameSimulator/deepq-89871"
+all_model_checkpoint_paths: "/Users/yasyf/Dropbox (MIT)/Fall 2016/6.867/project/static/tf/models/ToyGameSimulator/deepq-109203"
+all_model_checkpoint_paths: "/Users/yasyf/Dropbox (MIT)/Fall 2016/6.867/project/static/tf/models/ToyGameSimulator/deepq-126304"
+all_model_checkpoint_paths: "/Users/yasyf/Dropbox (MIT)/Fall 2016/6.867/project/static/tf/models/ToyGameSimulator/deepq-144068"
