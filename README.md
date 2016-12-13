@@ -4,7 +4,7 @@ My attempt to use reinforcement learning to teach a computer how to play The Wor
 
 ## Abstract
 
-[The World's Hardest Game](http://www.worldshardestgame.org/) is a Flash game made popular online in 2007. It features a simple square player, whose goal is to navigate a series of levels by traveling from a designated start area to a designated finish area, avoiding deterministically-moving enemies and collecting all coins on the map. While the game results in a rather frustrating experience for most human players, I propose teaching a computer to play (and master) the game, using D[eep Q-learning with Experience Replay](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf).
+[The World's Hardest Game](http://www.worldshardestgame.org/) is a Flash game made popular online in 2007. It features a simple square player, whose goal is to navigate a series of levels by traveling from a designated start area to a designated finish area, avoiding deterministically-moving enemies and collecting all coins on the map. While the game results in a rather frustrating experience for most human players, I propose teaching a computer to play (and master) the game, using [Deep Q-learning with Experience Replay](https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf).
 
 ## Proposal
 
