@@ -32,7 +32,33 @@ TG2D-H is the exact same game as TG2D, but with multiple enemies. Each enemy is 
 
 ![TG2D-H](static/img/report/TG2D-H.png)
 
+## Baselines
+
+### Random
+
+I implemented a basic random model as a baseline. The model samples an action from a uniform distribution over 𝒜.
+
+|  Game  | Win Rate (%) |
+|:------:|:------------:|
+|  TG1D  |     28.85    |
+|  TG2D  |     36.95    |
+| TG2D-H |     9.18     |
+
+### ϵ-Greedy
+
+Our next baseline was a ϵ-greedy model that sampled a uniformly random action with probability ϵ, and took the greedy action at *t* + 1 based on the rewards at *t* with probability 1 − ϵ. For the below values, I used ϵ = 0.05.
+
+|  Game  | Win Rate (%) |
+|:------:|:------------:|
+|  TG1D  |     92.06    |
+|  TG2D  |     77.76    |
+| TG2D-H |     47.98    |
+
 ## Results
+
+I ran the best model over several training runs for each game, and present the results below. For any game more complex than the basic 1-D toy game, I see that our Deep Q-learning model outperforms the naive ϵ-greedy model.
+
+For the simple TG1D, I hypothesize that such a simple game can effectively be mastered with a greedy strategy, and that our function approximator could not match these results given the limited training time.
 
 |  Game  | Win Rate (%) | \# Training Frames |
 |:------:|:------------:|:------------------:|
