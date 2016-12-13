@@ -1,12 +1,9 @@
 from __future__ import print_function, division
-from ..shared.agent import Agent
-from test_agent_mixin import TestAgentMixin
+from test_agent import TestAgent
 import copy, random
 import numpy as np
 
-RUNS = 1000
-
-class GreedyTester(Agent, TestAgentMixin):
+class GreedyTester(TestAgent):
   EPSILON = 0.05
   NAME = 'Greedy'
 
@@ -26,22 +23,4 @@ class GreedyTester(Agent, TestAgentMixin):
       moves[move] = memory.reward
 
     return max(moves, key=moves.__getitem__)
-
-  def _step(self):
-    action, memory = self._make_next_move()
-    if memory.is_terminal:
-      return memory
-
-  def test(self):
-    runs = np.zeros(RUNS)
-
-    for i in range(RUNS):
-      self.reset()
-      while True:
-        memory = self._step()
-        if memory:
-          break
-      runs[i] = memory.is_win
-
-    print('{} Wins: {}%'.format(self.NAME, np.mean(runs) * 100))
 

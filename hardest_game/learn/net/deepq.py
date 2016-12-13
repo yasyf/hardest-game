@@ -23,11 +23,10 @@ class DeepQ(Base):
 
     self._create_graph()
 
+    self.log = log
     if log:
       log_dir = static_dir('tf', 'logs', str(int(time.time())))
-    else:
-      log_dir = os.devnull
-    self.writer = tf.train.SummaryWriter(log_dir, self.session.graph)
+      self.writer = tf.train.SummaryWriter(log_dir, self.session.graph)
 
     self._restore_or_init_vars(model_dir, restore)
 
@@ -143,10 +142,10 @@ class DeepQ(Base):
 
   def _train(self, ops, feed_dict):
     step = tf.train.global_step(self.session, self.global_step)
-    if step % WRITE_SUMMARY_EVERY == 0:
+    if self.log and step % WRITE_SUMMARY_EVERY == 0:
       ops.append(self.summaries)
     results = self.session.run(ops, feed_dict)
-    if step % WRITE_SUMMARY_EVERY == 0:
+    if self.log and step % WRITE_SUMMARY_EVERY == 0:
       self.writer.add_summary(results.pop(), global_step=step)
     return results
 
